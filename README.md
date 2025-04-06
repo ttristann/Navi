@@ -1,13 +1,6 @@
-Absolutely! Here's a full `README.md` for your Navi project, written to be clean, informative, and developer-friendly:
-
----
-
-```markdown
 # 🌍 Navi – Smart Travel Planning Redefined
 
-**Navi** is a collaborative travel planning web app that helps you find exciting stops *along your route*, not just at your destination. It’s like **Pinterest meets Google Docs** for travel—visual, interactive, and social.
-
----
+**Navi** is a collaborative travel planning web app that helps you find exciting stops *along your route*, not just at your destination. It’s like **Pinterest meets Google Docs** for travel—visual, interactive, and socia
 
 ## ✨ Features
 
@@ -18,8 +11,6 @@ Absolutely! Here's a full `README.md` for your Navi project, written to be clean
 - 💸 **Budget Planner & Expense Splitter**
 - 📶 **Offline Itinerary Access** – View plans even without internet
 - 🔔 **Push Notifications** – Stay in the loop on flights or trip changes
-
----
 
 ## 🛠️ Tech Stack
 
@@ -52,16 +43,13 @@ Absolutely! Here's a full `README.md` for your Navi project, written to be clean
 - **Postman** – API testing
 - **Figma** – Design & mockups
 
----
 
 ## 🚀 Getting Started
 
 ### Clone the repo
 
-```bash
 git clone https://github.com/ttristann/navi.git
 cd navi
-```
 
 ### Setup (Frontend & Backend)
 
