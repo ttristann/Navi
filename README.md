@@ -51,7 +51,7 @@ git clone https://github.com/ttristann/navi.git
 cd navi
 
 ### Setup (Frontend & Backend)
-
+- MUST HAVE THE LATEST VERSION OF NODE
 1. **Install frontend dependencies:**
    ```bash
    cd client
