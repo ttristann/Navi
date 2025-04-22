@@ -1,12 +1,12 @@
-import React from 'react';
+// import logo from './logo.svg';
+// import './App.css';
 
-const App = () => {
-    return (
-        <div>
-            <h1>Hello, World!</h1>
-            <p>This is a simple React application.</p>
-        </div>
-    );
+function App() {
+  return (
+    <div>
+      <h1>Welcome to React</h1>
+    </div>
+  );
 }
 
 export default App;
