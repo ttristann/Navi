@@ -1,4 +1,4 @@
-# 🌍 Navi – Smart Travel Planning Redefined
+# Navi – Smart Travel Planning Redefined
 
 **Navi** is a collaborative travel planning web app that helps you find exciting stops *along your route*, not just at your destination. It’s like **Pinterest meets Google Docs** for travel—visual, interactive, and socia
 
