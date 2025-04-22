@@ -52,9 +52,6 @@ cd navi
 
 ### Setup (Frontend & Backend)
 - MUST HAVE THE LATEST VERSION OF NODE
-- install these dependencies: 
- - npm install @mui/material @mui/icons-material @mui/lab axios @react-google-maps/api google-map-react --legacy-peer-deps
- 
 1. **Install frontend dependencies:**
    ```bash
    cd client
