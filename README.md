@@ -2,16 +2,16 @@
 
 **Navi** is a collaborative travel planning web app that helps you find exciting stops *along your route*, not just at your destination. It’s like **Pinterest meets Google Docs** for travel—visual, interactive, and socia
 
-## ✨ Features
+## Features
 
-- 🧭 **Trip Boards** – Plan, edit, and organize trips visually
-- 📍 **Stop Suggestions** – Smart detours, landmarks, and food recs en route
-- 🗺️ **Embedded Travel Info** – Maps, weather, restaurants, stays, and notes
-- 💸 **Budget Planner & Expense Splitter**
-- 📶 **Offline Itinerary Access** – View plans even without internet
-- 🔔 **Push Notifications** – Stay in the loop on flights or trip changes
+- **Trip Boards** – Plan, edit, and organize trips visually
+- **Stop Suggestions** – Smart detours, landmarks, and food recs en route
+- **Embedded Travel Info** – Maps, weather, restaurants, stays, and notes
+- **Budget Planner & Expense Splitter**
+- **Offline Itinerary Access** – View plans even without internet
+- **Push Notifications** – Stay in the loop on flights or trip changes
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **React.js** – Component-based UI
@@ -43,7 +43,7 @@
 - **Figma** – Design & mockups
 
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Clone the repo
 
@@ -91,15 +91,3 @@ Main contributions are made by:
 - Julie Huynh
 - Christine Duong
 
-
-## 📄 License
-
-MIT License © 2025 [Your Name]
-
-
-## 🙌 Acknowledgements
-
-- Google Maps Platform
-- OpenWeatherMap
-- Airbnb/Booking.com
-- Inspired by tools like Notion, Pinterest, and Rome2Rio
