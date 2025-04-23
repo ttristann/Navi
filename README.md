@@ -51,7 +51,7 @@ git clone https://github.com/ttristann/navi.git
 cd navi
 
 ### Setup (Frontend & Backend)
-- MUST HAVE THE LATEST VERSION OF NODE
+- MUST HAVE THE LATEST VERSION OF NODE, and must be on react 18
 - install these dependencies: 
  - npm install @mui/material @mui/icons-material @mui/lab axios @react-google-maps/api google-map-react
  
