@@ -95,4 +95,4 @@ Main contributions are made by:
 
 - Tristan Galang
 - Julie Huynh
-- Christine Duong
+- Christine L Duong 

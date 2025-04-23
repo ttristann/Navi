@@ -3,7 +3,7 @@ import { Autocomplete } from '@react-google-maps/api';
 import { AppBar, Toolbar, Typography, InputBase, Box, alpha } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
-import useStyles from './styles';
+import useStyles from './styles'; // make styles is not needed
 
 const Header = () => {
     return (
