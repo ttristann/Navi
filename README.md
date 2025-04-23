@@ -54,6 +54,9 @@ cd navi
 - MUST HAVE THE LATEST VERSION OF NODE, and must be on react 18
 - install these dependencies: 
  - npm install @mui/material @mui/icons-material @mui/lab axios @react-google-maps/api google-map-react
+ - npm install @emotion/react @emotion/styled
+ - npm install @mui/styles
+
  
 1. **Install frontend dependencies:**
    ```bash
