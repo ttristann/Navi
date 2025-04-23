@@ -1,70 +1,95 @@
-# Getting Started with Create React App
+# Navi – Smart Travel Planning Redefined
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**Navi** is a collaborative travel planning web app that helps you find exciting stops *along your route*, not just at your destination. It’s like **Pinterest meets Google Docs** for travel—visual, interactive, and socia
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Trip Boards** – Plan, edit, and organize trips visually
+- **Stop Suggestions** – Smart detours, landmarks, and food recs en route
+- **Embedded Travel Info** – Maps, weather, restaurants, stays, and notes
+- **Budget Planner & Expense Splitter**
+- **Offline Itinerary Access** – View plans even without internet
+- **Push Notifications** – Stay in the loop on flights or trip changes
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Frontend
+- **React.js** – Component-based UI
+- **Tailwind CSS** – Utility-first styling
+- **React Router** – Page routing
+- **Framer Motion** – Animations
+- **Axios** – API calls
+- **PWA Support** – Offline-first experience
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Backend
+- **Node.js + Express.js** – RESTful API server
+- **Socket.io** – Real-time chat and board updates
+- **JWT / OAuth 2.0** – Authentication
 
-### `npm test`
+### Database
+- **MongoDB** (via Mongoose) or **PostgreSQL** (via Sequelize)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### APIs & Integrations
+- **Google Maps API** – Routes and location pins
+- **OpenWeatherMap API** – Forecasts per stop
+- **Airbnb/Booking API (or mock)** – Accommodation listings
+- **Currency Exchange API** – Budget conversion
 
-### `npm run build`
+### Dev Tools
+- **Vercel / Netlify** – Frontend deployment
+- **Render / Railway / Heroku** – Backend deployment
+- **Firebase / OneSignal** – Push notifications & chat (optional)
+- **Postman** – API testing
+- **Figma** – Design & mockups
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Getting Started
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Clone the repo
 
-### `npm run eject`
+git clone https://github.com/ttristann/navi.git
+cd navi
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Setup (Frontend & Backend)
+- MUST HAVE THE LATEST VERSION OF NODE
+- install these dependencies: 
+ - npm install @mui/material @mui/icons-material @mui/lab axios @react-google-maps/api google-map-react
+ 
+1. **Install frontend dependencies:**
+   ```bash
+   cd client
+   npm install
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2. **Install backend dependencies:**
+   ```bash
+   cd ../server
+   npm install
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3. **Create `.env` files in both folders:**
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- `client/.env`:
+  ```
+  VITE_MAPS_API_KEY=your_google_maps_key
+  ```
 
-## Learn More
+- `server/.env`:
+  ```
+  MONGO_URI=your_mongodb_connection_string
+  JWT_SECRET=your_jwt_secret
+  ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+4. **Run development servers:**
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- Frontend: `npm run dev` in `/client`
+- Backend: `npm run dev` in `/server`
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Contributing
 
-### Analyzing the Bundle Size
+Main contributions are made by:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Tristan Galang
+- Julie Huynh
+- Christine Duong
