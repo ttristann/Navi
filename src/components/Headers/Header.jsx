@@ -22,12 +22,19 @@ const Header = ({onSearch}) => {
           `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchInput)}&key=${apiKey}`
         );
         const data = await response.json();
-        if (data.results.length > 0){
+        console.log('Geocode API Resonse:', data)
+        if (data.status === "OK" && data.results.length > 0) {
           const location = data.results[0].geometry.location;
           onSearch({ lat: location.lat, lng: location.lng });
         } else {
-          alert('Place not found!')
+          alert(`Place not found! (Status: ${data.status})`);
         }
+        // if (data.results.length > 0){
+        //   const location = data.results[0].geometry.location;
+        //   onSearch({ lat: location.lat, lng: location.lng });
+        // } else {
+        //   alert('Place not found!')
+        // }
       } catch (error) {
         console.error('Error fetching location: ', error)
       }
