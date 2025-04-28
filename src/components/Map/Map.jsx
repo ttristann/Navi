@@ -13,7 +13,7 @@ import useStyles from './styles';
 const Map = () => {
     const classes = useStyles(); // Access custom styles
     const isMobile = useMediaQuery('(min-width:600px)'); // Detect if the device screen is at least 600px wide
-    const coordinates = { lat: 34.0522, lng: -118.2437 }; // Default coordinates (Los Angeles)
+    const coordinates = { lat: 34.0522, lng: -118.2437 }; // Default coordinates of LA
 
     return (
         // Container for the map
