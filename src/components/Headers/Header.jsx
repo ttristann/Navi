@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import { Autocomplete } from '@react-google-maps/api';
 import { AppBar, Toolbar, Typography, InputBase, Box, alpha } from '@mui/material'; // Material UI components for styling and layout
 import SearchIcon from '@mui/icons-material/Search'; // Icon for the search bar
@@ -9,7 +10,30 @@ import useStyles from './styles'; // (Currently not used in this file but could 
  * Header component for the application
  * Displays a navigation bar with the app name, an 'Explore' label, and a search input
  */
-const Header = () => {
+const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+
+const Header = ({onSearch}) => {
+  // Search handling
+  const [searchInput, setSearchInput] = useState('');
+  const handleKeyPress = async (e) => {
+    if (e.key == 'Enter'){
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchInput)}&key=${apiKey}`
+        );
+        const data = await response.json();
+        if (data.results.length > 0){
+          const location = data.results[0].geometry.location;
+          onSearch({ lat: location.lat, lng: location.lng });
+        } else {
+          alert('Place not found!')
+        }
+      } catch (error) {
+        console.error('Error fetching location: ', error)
+      }
+    }
+  }
+
   return (
     // AppBar is the main top bar container
     <AppBar position="static">
@@ -42,6 +66,9 @@ const Header = () => {
             <InputBase
               placeholder="Search..."
               sx={{ width: 200 }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleKeyPress}
             />
           </Box>
         </Box>

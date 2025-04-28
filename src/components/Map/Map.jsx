@@ -5,15 +5,16 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'; // 
 import Rating from '@mui/material/Rating'; // Star rating component
 
 import useStyles from './styles'; 
+import { APIProvider, Map } from '@vis.gl/react-google-maps';
 
-/**
- * Map component
- * Displays a Google Map centered around a given set of coordinates
- */
-const Map = () => {
+
+//  * Map component
+//  * Displays a Google Map centered around a given set of coordinates
+//  */
+const MapComponent = ({ coordinates }) => {
     const classes = useStyles(); // Access custom styles
     const isMobile = useMediaQuery('(min-width:600px)'); // Detect if the device screen is at least 600px wide
-    const coordinates = { lat: 34.0522, lng: -118.2437 }; // Default coordinates of LA
+    // const coordinates = { lat: 34.0522, lng: -118.2437 }; // Default coordinates of LA
 
     return (
         // Container for the map
@@ -35,5 +36,5 @@ const Map = () => {
     );
 }
 
-export default Map;
+export default MapComponent;
 
