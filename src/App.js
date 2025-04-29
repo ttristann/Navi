@@ -6,6 +6,7 @@ import { LoadScript } from '@react-google-maps/api';
 import Header from './components/Headers/Header';
 import List from './components/List/List';
 import MapComponent from './components/Map/Map';
+import SearchBar from './components/SearchBar/SearchBar';
 
 /**
  * App component
@@ -24,20 +25,22 @@ function App() {
       <CssBaseline />
 
       {/* Top navigation bar */}
-      <div style={{ position: 'fixed', top: 0, width: '100%', zIndex: 3 }}>
-        <Header onSearch={setCoordinates} />
-      </div>
-
-      {/* Main content layout */}
-      <div style={{ display: 'flex', flexDirection: 'row', marginTop: '10vh', height: '90vh' }}>
-        {/* Left side: List Display */}
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          <List />
+      <div style={{backgroundColor: "#74BEED", minHeight: '100vh'}}>
+        <div style={{ position: 'fixed', top: 0, width: '100%', zIndex: 3 }}>
+          <Header/>
         </div>
 
-        {/* Right side: Map Display */}
-        <div style={{ flex: 2 }}>
-          <MapComponent coordinates={coordinates} />
+        {/* Main content layout */}
+        <div style={{ display: 'flex', flexDirection: 'row', marginTop: '10vh', height: '90vh' }}>
+          {/* Left side: List Display */}
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            <SearchBar onSearch={setCoordinates}  />
+          </div>
+
+          {/* Right side: Map Display */}
+          {/* <div style={{ flex: 2 }}>
+            <MapComponent coordinates={coordinates} />
+          </div> */}
         </div>
       </div>
     </LoadScript>
