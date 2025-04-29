@@ -24,11 +24,11 @@ function App() {
       {/* CssBaseline normalizes and resets browser default styles */}
       <CssBaseline />
 
-      {/* Top navigation bar */}
-      <div style={{backgroundColor: "#74BEED", minHeight: '100vh'}}>
-        <div style={{ position: 'fixed', top: 0, width: '100%', zIndex: 3 }}>
+      <div style={{background: 'linear-gradient(to bottom, #83ADF8, #E8F4FF)', minHeight: '100vh'}}>
+        {/* Top navigation bar */}
+        {/* <div style={{ position: 'fixed', top: 0, width: '100%', zIndex: 3 }}> */}
           <Header/>
-        </div>
+        {/* </div> */}
 
         {/* Main content layout */}
         <div style={{ display: 'flex', flexDirection: 'row', marginTop: '10vh', height: '90vh' }}>
