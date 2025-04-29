@@ -56,6 +56,7 @@ cd navi
  - npm install @mui/material @mui/icons-material @mui/lab axios @react-google-maps/api google-map-react
  - npm install @emotion/react @emotion/styled
  - npm install @mui/styles
+ - npm install @vis.gl/react-google-maps
 
  
 1. **Install frontend dependencies:**
