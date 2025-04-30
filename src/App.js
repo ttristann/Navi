@@ -234,6 +234,8 @@ function App() {
             places={places}
             selectedPlace={selectedPlace}
             setSelectedPlace={setSelectedPlace}
+            origin="Los Angeles, CA" // Test Value
+            destination={coordinates} // Test Value
           />
         </div>
       </div>
