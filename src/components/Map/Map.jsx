@@ -24,79 +24,79 @@ const MapComponent = ({
   const setSelectedPlace = propSetSelectedPlace || setLocalSelectedPlace;
 
   // Fit all markers and the center into view
-//   useEffect(() => {
-//     if (!map || !places.length) return;
-
-//     const bounds = new window.google.maps.LatLngBounds();
-
-//     places.forEach((place) => {
-//       const lat = place.latitude || place.lat;
-//       const lng = place.longitude || place.lng;
-//       bounds.extend(new window.google.maps.LatLng(lat, lng));
-//     });
-
-//     bounds.extend(new window.google.maps.LatLng(coordinates.lat, coordinates.lng));
-//     map.fitBounds(bounds);
-//   }, [map, places, coordinates]);
-
-  // Get directions between origin and destination
   useEffect(() => {
-    if (!origin || !destination || !window.google || !map) return;
-  
-    const directionsService = new window.google.maps.DirectionsService();
-    const renderer = new window.google.maps.DirectionsRenderer({
-      suppressMarkers: true,
-      preserveViewport: true,
+    if (!map || !places.length) return;
+
+    const bounds = new window.google.maps.LatLngBounds();
+
+    places.forEach((place) => {
+      const lat = place.latitude || place.lat;
+      const lng = place.longitude || place.lng;
+      bounds.extend(new window.google.maps.LatLng(lat, lng));
     });
-  
-    directionsService.route(
-      {
-        origin,
-        destination,
-        travelMode: window.google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === 'OK' && result.routes?.length > 0) {
-          renderer.setDirections(result);
-          renderer.setMap(map);
-          setDirectionsRenderer(renderer);
-  
-          const bounds = new window.google.maps.LatLngBounds();
-          const route = result.routes[0];
-  
-          route.legs.forEach((leg) => {
-            bounds.extend(leg.start_location);
-            bounds.extend(leg.end_location);
-          });
-  
-          map.fitBounds(bounds);
 
-          // Extract breakpoints from overview_path
-          const path = result.routes[0].overview_path;
-          const numberOfPoints = 5;
-          const interval = Math.floor(path.length / numberOfPoints);
-          const breakpoints = [];
+    bounds.extend(new window.google.maps.LatLng(coordinates.lat, coordinates.lng));
+    map.fitBounds(bounds);
+  }, [map, places, coordinates]);
 
-          for (let i = 0; i < numberOfPoints; i++) {
-            const point = path[i * interval];
-            if (point) {
-              breakpoints.push({ lat: point.lat(), lng: point.lng() });
-            }
-          }
-
-          setRouteBreakpoints(breakpoints);
-        } else {
-          console.error('Directions request failed due to', status);
-        }
-      }
-    );
+  // Get directions between origin and destination --> USEFUL WHEN THE USER SELECTS "CREATE ROADTRIP"
+//   useEffect(() => {
+//     if (!origin || !destination || !window.google || !map) return;
   
-    return () => {
-      if (directionsRenderer) {
-        directionsRenderer.setMap(null);
-      }
-    };
-  }, [origin, destination, map]);
+//     const directionsService = new window.google.maps.DirectionsService();
+//     const renderer = new window.google.maps.DirectionsRenderer({
+//       suppressMarkers: true,
+//       preserveViewport: true,
+//     });
+  
+//     directionsService.route(
+//       {
+//         origin,
+//         destination,
+//         travelMode: window.google.maps.TravelMode.DRIVING,
+//       },
+//       (result, status) => {
+//         if (status === 'OK' && result.routes?.length > 0) {
+//           renderer.setDirections(result);
+//           renderer.setMap(map);
+//           setDirectionsRenderer(renderer);
+  
+//           const bounds = new window.google.maps.LatLngBounds();
+//           const route = result.routes[0];
+  
+//           route.legs.forEach((leg) => {
+//             bounds.extend(leg.start_location);
+//             bounds.extend(leg.end_location);
+//           });
+  
+//           map.fitBounds(bounds);
+
+//           // Extract breakpoints from overview_path
+//           const path = result.routes[0].overview_path;
+//           const numberOfPoints = 5; // The number of breakpoints can be changed based on the user's preference
+//           const interval = Math.floor(path.length / numberOfPoints);
+//           const breakpoints = [];
+
+//           for (let i = 0; i < numberOfPoints; i++) {
+//             const point = path[i * interval];
+//             if (point) {
+//               breakpoints.push({ lat: point.lat(), lng: point.lng() });
+//             }
+//           }
+
+//           setRouteBreakpoints(breakpoints);
+//         } else {
+//           console.error('Directions request failed due to', status);
+//         }
+//       }
+//     );
+  
+//     return () => {
+//       if (directionsRenderer) {
+//         directionsRenderer.setMap(null);
+//       }
+//     };
+//   }, [origin, destination, map]);
 
   const getCategoryIcon = (category) => {
     if (category === 'restaurants') return '🍴';
