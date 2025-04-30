@@ -224,7 +224,7 @@ const MapComponent = ({
             </AdvancedMarker>
           );
         })}
-
+        {/* Small pop-up windows when location/marker is clicked on the map */}
         {selectedPlace && (
           <InfoWindow
             position={{
@@ -236,7 +236,8 @@ const MapComponent = ({
             {renderInfoContent(selectedPlace)}
           </InfoWindow>
         )}
-        {/* ✅ Special Breakpoint Markers */}
+
+        {/* Special Breakpoint Markers */}
         {routeBreakpoints.map((point, index) => (
           <AdvancedMarker
             key={`breakpoint-${index}`}
