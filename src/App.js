@@ -141,7 +141,13 @@ function App() {
         });
         
         // Update state with the places
-        setPlaces(allPlaces);
+        // Limits the number of places shown to 30 for now --> more efficient
+        setPlaces(
+          allPlaces
+          .sort((a, b) => (b.rating || 0) - (a.rating || 0)) // Sort by rating
+          .slice(0, 30) // Gets the top 30 places
+        );
+
       } catch (error) {
         console.error('Error fetching places:', error);
       } finally {
