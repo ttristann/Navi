@@ -7,6 +7,7 @@ import Header from './components/Headers/Header';
 import List from './components/List/List';
 import MapComponent from './components/Map/Map';
 import SearchBar from './components/SearchBar/SearchBar';
+import PopularTrips from './components/TripCards/PopularTrips';
 
 /**
  * App component
@@ -35,6 +36,7 @@ function App() {
           {/* Left side: List Display */}
           <div style={{ flex: 1, overflowY: 'auto' }}>
             <SearchBar onSearch={setCoordinates}  />
+            <PopularTrips />
           </div>
 
           {/* Right side: Map Display */}

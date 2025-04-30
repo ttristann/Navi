@@ -8,7 +8,6 @@ function SearchBar({ onSearch }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef(null);
   
-  // Load Google Places API script if not already loaded
   useEffect(() => {
     if (!window.google || !window.google.maps) {
       const script = document.createElement('script');
@@ -156,10 +155,11 @@ function SearchBar({ onSearch }) {
             px: 2,
             py: 1,
             mt: 2,
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            boxShadow: '2 4px 20px rgba(0, 0, 0, 0.3)',
           }}
         >
           <LocationOnIcon sx={{ color: 'gray', mr: 1 }} />
+          {/* Styling for Dropdown */}
           <InputBase
             ref={inputRef}
             placeholder="Where to?"
