@@ -57,6 +57,7 @@ cd navi
  - npm install @emotion/react @emotion/styled
  - npm install @mui/styles
  - npm install @vis.gl/react-google-maps
+ - npm install @mui/icons-material @vis.gl/react-google-maps
 
  
 1. **Install frontend dependencies:**
