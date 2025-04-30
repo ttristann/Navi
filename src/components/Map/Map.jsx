@@ -17,34 +17,38 @@ const MapComponent = ({
   const isMobile = useMediaQuery('(min-width:600px)');
   const [localSelectedPlace, setLocalSelectedPlace] = useState(null);
   const [directionsRenderer, setDirectionsRenderer] = useState(null);
+  const [routeBreakpoints, setRouteBreakpoints] = useState([]);
   const map = useMap();
 
   const selectedPlace = propSelectedPlace !== undefined ? propSelectedPlace : localSelectedPlace;
   const setSelectedPlace = propSetSelectedPlace || setLocalSelectedPlace;
 
   // Fit all markers and the center into view
-  useEffect(() => {
-    if (!map || !places.length) return;
+//   useEffect(() => {
+//     if (!map || !places.length) return;
 
-    const bounds = new window.google.maps.LatLngBounds();
+//     const bounds = new window.google.maps.LatLngBounds();
 
-    places.forEach((place) => {
-      const lat = place.latitude || place.lat;
-      const lng = place.longitude || place.lng;
-      bounds.extend(new window.google.maps.LatLng(lat, lng));
-    });
+//     places.forEach((place) => {
+//       const lat = place.latitude || place.lat;
+//       const lng = place.longitude || place.lng;
+//       bounds.extend(new window.google.maps.LatLng(lat, lng));
+//     });
 
-    bounds.extend(new window.google.maps.LatLng(coordinates.lat, coordinates.lng));
-    map.fitBounds(bounds);
-  }, [map, places, coordinates]);
+//     bounds.extend(new window.google.maps.LatLng(coordinates.lat, coordinates.lng));
+//     map.fitBounds(bounds);
+//   }, [map, places, coordinates]);
 
   // Get directions between origin and destination
   useEffect(() => {
     if (!origin || !destination || !window.google || !map) return;
-
+  
     const directionsService = new window.google.maps.DirectionsService();
-    const newRenderer = new window.google.maps.DirectionsRenderer({ suppressMarkers: true });
-
+    const renderer = new window.google.maps.DirectionsRenderer({
+      suppressMarkers: true,
+      preserveViewport: true,
+    });
+  
     directionsService.route(
       {
         origin,
@@ -52,17 +56,41 @@ const MapComponent = ({
         travelMode: window.google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
-        if (status === 'OK') {
-          newRenderer.setDirections(result);
-          newRenderer.setMap(map);
-          setDirectionsRenderer(newRenderer);
+        if (status === 'OK' && result.routes?.length > 0) {
+          renderer.setDirections(result);
+          renderer.setMap(map);
+          setDirectionsRenderer(renderer);
+  
+          const bounds = new window.google.maps.LatLngBounds();
+          const route = result.routes[0];
+  
+          route.legs.forEach((leg) => {
+            bounds.extend(leg.start_location);
+            bounds.extend(leg.end_location);
+          });
+  
+          map.fitBounds(bounds);
+
+          // Extract breakpoints from overview_path
+          const path = result.routes[0].overview_path;
+          const numberOfPoints = 5;
+          const interval = Math.floor(path.length / numberOfPoints);
+          const breakpoints = [];
+
+          for (let i = 0; i < numberOfPoints; i++) {
+            const point = path[i * interval];
+            if (point) {
+              breakpoints.push({ lat: point.lat(), lng: point.lng() });
+            }
+          }
+
+          setRouteBreakpoints(breakpoints);
         } else {
           console.error('Directions request failed due to', status);
         }
       }
     );
-
-    // Clean up previous directions
+  
     return () => {
       if (directionsRenderer) {
         directionsRenderer.setMap(null);
@@ -208,6 +236,21 @@ const MapComponent = ({
             {renderInfoContent(selectedPlace)}
           </InfoWindow>
         )}
+        {/* ✅ Special Breakpoint Markers */}
+        {routeBreakpoints.map((point, index) => (
+          <AdvancedMarker
+            key={`breakpoint-${index}`}
+            position={point}
+            title={`Route Breakpoint ${index + 1}`}
+          >
+            <Pin
+              background={'#8E24AA'}
+              glyphColor={'#FFFFFF'}
+              borderColor={'#FFFFFF'}
+              scale={1.2}
+            />
+          </AdvancedMarker>
+        ))}
       </Map>
     </div>
   );
