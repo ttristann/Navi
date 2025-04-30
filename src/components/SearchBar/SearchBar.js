@@ -1,99 +1,134 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Box, Button, InputBase, Paper, Typography } from '@mui/material';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
-// import { CssBaseline } from '@mui/material';
-// import { LoadScript } from '@react-google-maps/api';
-
-import React, { useState } from 'react';
-import { Autocomplete } from '@react-google-maps/api';
-import { AppBar, Toolbar, Typography, InputBase, Box, Button, Paper } from '@mui/material';
-import LocationOnIcon from '@mui/icons-material/LocationOn'
-// import SearchIcon from '@mui/icons-material/Search';
-
-/**
- * SearchBar component
- * To be imported on different pages
- */
-
-const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-
-function SearchBar ({ onSearch }) {
+function SearchBar({ onSearch }) {
   const [searchInput, setSearchInput] = useState('');
-    const [autocomplete, setAutocomplete] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const inputRef = useRef(null);
   
-    const onLoad = (autoC) => setAutocomplete(autoC);
-
-    // handles the autosearch
-    const onPlaceChanged = () => {
-      if (autocomplete !== null) {
-        const place = autocomplete.getPlace();
-        if (place && place.geometry && place.geometry.location) {
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          onSearch({ lat, lng });
-        }
+  // Load Google Places API script if not already loaded
+  useEffect(() => {
+    if (!window.google || !window.google.maps) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+      
+      return () => {
+        document.head.removeChild(script);
+      };
+    }
+  }, []);
+  
+  // Initialize autocomplete when Google Maps is loaded
+  useEffect(() => {
+    if (!window.google || !window.google.maps || !window.google.maps.places || !inputRef.current) {
+      return;
+    }
+    
+    const autocompleteService = new window.google.maps.places.AutocompleteService();
+    const placesService = new window.google.maps.places.PlacesService(document.createElement('div'));
+    
+    const fetchSuggestions = (input) => {
+      if (!input) {
+        setSuggestions([]);
+        return;
       }
+      
+      autocompleteService.getPlacePredictions(
+        { input },
+        (predictions, status) => {
+          if (status !== window.google.maps.places.PlacesServiceStatus.OK || !predictions) {
+            setSuggestions([]);
+            return;
+          }
+          
+          setSuggestions(predictions.map(prediction => ({
+            id: prediction.place_id,
+            mainText: prediction.structured_formatting.main_text,
+            secondaryText: prediction.structured_formatting.secondary_text
+          })));
+        }
+      );
     };
     
-    // handles keypress for search
-    const handleKeyPress = async (e) => {
-      if (e.key === 'Enter') {
-        if (autocomplete) {
-          const place = autocomplete.getPlace();
-          // If autocomplete has a proper place, let onPlaceChanged handle it
-          if (place && place.geometry && place.geometry.location) {
-            return; // Do nothing — Autocomplete handled it
-          }
-        }
-        // Otherwise, fallback to manual geocode fetch
-        try {
-          const response = await fetch(
-            `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchInput)}&key=${apiKey}`
-          );
-          const data = await response.json();
-          console.log('Manual Geocode API Response:', data);
-          if (data.status === "OK" && data.results.length > 0) {
-            const location = data.results[0].geometry.location;
-            onSearch({ lat: location.lat, lng: location.lng });
-          } else {
-            alert(`Place not found! (Status: ${data.status})`);
-          }
-        } catch (error) {
-          console.error('Error fetching location manually: ', error);
-        }
-      }
+    // Debounce function to limit API calls
+    let timeoutId = null;
+    const handleInputChange = (value) => {
+      setSearchInput(value);
+      clearTimeout(timeoutId);
+      
+      timeoutId = setTimeout(() => {
+        fetchSuggestions(value);
+      }, 300);
     };
-
-    // handles when user presses 'Search'
-
-
-  // styling for dropdown autocomplete results
-  React.useEffect(() => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .pac-container {
-        border-radius: 5px !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
-        font-family: 'Roboto', sans-serif !important;
-        z-index: 9999 !important;
-        width:500px !important;
-        margin-left: -30px !important;
-        margin-top: 12px !important;
-      }
-  
-      .pac-item {
-        padding: 12px !important;
-        font-size: 16px;
-      }
-  
-      .pac-item:hover {
-        background-color: #f0f4ff !important;
-      }
-    `;
-    document.head.appendChild(style);
+    
+    // Setup event listener
+    const input = inputRef.current;
+    input.addEventListener('input', (e) => handleInputChange(e.target.value));
+    
     return () => {
-      document.head.removeChild(style);
+      input.removeEventListener('input', (e) => handleInputChange(e.target.value));
+      clearTimeout(timeoutId);
     };
   }, []);
   
+  const handleSuggestionClick = (placeId) => {
+    if (!window.google || !window.google.maps || !window.google.maps.places) {
+      return;
+    }
+    
+    const placesService = new window.google.maps.places.PlacesService(document.createElement('div'));
+    
+    placesService.getDetails(
+      { placeId },
+      (place, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && place.geometry) {
+          setSearchInput(place.formatted_address || place.name);
+          setShowSuggestions(false);
+          
+          const location = {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+          };
+          
+          onSearch(location);
+        }
+      }
+    );
+  };
+  
+  const handleSearch = () => {
+    // Handle direct search with entered text
+    if (!searchInput) return;
+    console.log("Search Button Pressed");
+    // Use geocoding API to get coordinates
+    fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchInput)}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
+    )
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'OK' && data.results.length > 0) {
+          const location = data.results[0].geometry.location;
+          onSearch({ lat: location.lat, lng: location.lng });
+        } else {
+          alert('Place not found!');
+        }
+      })
+      .catch(err => {
+        console.error('Geocode API error:', err);
+      });
+  };
+  
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
     <Paper
       elevation={3}
@@ -104,56 +139,115 @@ function SearchBar ({ onSearch }) {
         mx: 'auto',
         mt: 6,
         backgroundColor: '#fff',
-        textAlign:'center'
+        textAlign: 'center',
       }}
-      >
-          <Typography variant="h5" fontWeight="bold" gutterBottom>
-            Plan Your Perfect Getaway
-          </Typography>
+    >
+      <Typography variant="h5" fontWeight="bold" gutterBottom>
+        Plan Your Perfect Getaway
+      </Typography>
 
-          <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems:'center',
-                backgroundColor: '#fff', 
-                borderRadius: '999px', 
-                px: 2,
-                py: 1, 
-                mt: 2,
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
-              }}
-            >
-              <LocationOnIcon sx={{ color: 'gray', mr: 1 }} />
-              <InputBase
-                placeholder="Where To?"
-                fullWidth
-                sx={{ flex: 1 }}
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={handleKeyPress}
-              />
-              <Button
-                variant="contained"
-                onClick={handleKeyPress}
+      <Box sx={{ position: 'relative' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: '#f5f5f5',
+            borderRadius: '999px',
+            px: 2,
+            py: 1,
+            mt: 2,
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          <LocationOnIcon sx={{ color: 'gray', mr: 1 }} />
+          <InputBase
+            ref={inputRef}
+            placeholder="Where to?"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            onFocus={() => setShowSuggestions(true)}
+            fullWidth
+            sx={{
+              border: 'none',
+              outline: 'none',
+              '& .MuiInputBase-input': {
+                border: 'none',
+                outline: 'none',
+                boxShadow: 'none',
+              },
+              '& .MuiInputBase-input:focus': {
+                border: 'none',
+                outline: 'none',
+                boxShadow: 'none',
+              },
+            }}
+          />
+          <Button
+            variant="contained"
+            onClick={handleSearch}
+            sx={{
+              backgroundColor: '#1e2a55',
+              borderRadius: '20px',
+              textTransform: 'none',
+              ml: 2,
+              px: 3,
+              '&:hover': {
+                backgroundColor: '#2c3a75',
+              },
+            }}
+          >
+            Search
+          </Button>
+        </Box>
+        
+        {/* Suggestions dropdown */}
+        {showSuggestions && suggestions.length > 0 && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              mt: 1,
+              backgroundColor: 'white',
+              borderRadius: 1,
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              zIndex: 9999,
+              maxHeight: '300px',
+              overflowY: 'auto',
+            }}
+          >
+            {suggestions.map(suggestion => (
+              <Box
+                key={suggestion.id}
+                onClick={() => handleSuggestionClick(suggestion.id)}
                 sx={{
-                  backgroundColor: '#1e2a55',
-                  borderRadius: '20px',
-                  textTransform: 'none',
-                  ml: 2,
-                  px: 3,
-                  '&hover': {
-                    backgroundColor: '#2c3a75',
-                  }
+                  p: 2,
+                  borderBottom: '1px solid #f0f0f0',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: '#f9f9f9',
+                  },
+                  textAlign: 'left',
                 }}
-                > Search
-              </Button>
-            </Box>
-          </Autocomplete>
-        </Paper>
+              >
+                <Box display="flex" alignItems="center">
+                  <LocationOnIcon fontSize="small" sx={{ color: 'gray', mr: 1 }} />
+                  <Box>
+                    <Typography variant="body1">{suggestion.mainText}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {suggestion.secondaryText}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        )}
+      </Box>
+    </Paper>
   );
 }
 
 export default SearchBar;
-
-
