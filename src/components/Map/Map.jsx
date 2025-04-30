@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Paper, Typography, useMediaQuery, Rating, Box } from '@mui/material';
-import { Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
+import { Map, AdvancedMarker, Pin, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 import useStyles from './styles';
@@ -9,15 +9,28 @@ const MapComponent = ({ coordinates, places = [], selectedPlace: propSelectedPla
     const classes = useStyles();
     const isMobile = useMediaQuery('(min-width:600px)');
     const [localSelectedPlace, setLocalSelectedPlace] = useState(null);
+    const map = useMap();
 
     const selectedPlace = propSelectedPlace !== undefined ? propSelectedPlace : localSelectedPlace;
     const setSelectedPlace = propSetSelectedPlace || setLocalSelectedPlace;
 
+    // Changes the zoom dynamically to show the all of the markers
     useEffect(() => {
-        if (propSelectedPlace !== undefined) {
-            setLocalSelectedPlace(propSelectedPlace);
-        }
-    }, [propSelectedPlace]);
+        if (!map || !places.length) return;
+
+        const bounds = new window.google.maps.LatLngBounds();
+
+        places.forEach((place) => {
+            const lat = place.latitude || place.lat;
+            const lng = place.longitude || place.lng;
+            bounds.extend(new window.google.maps.LatLng(lat, lng));
+        });
+
+        // Also include the center location in bounds
+        bounds.extend(new window.google.maps.LatLng(coordinates.lat, coordinates.lng));
+
+        map.fitBounds(bounds);
+    }, [map, places, coordinates]);
 
     const getCategoryIcon = (category) => {
         if (category === 'restaurants') return '🍴';
