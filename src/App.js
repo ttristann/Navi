@@ -23,9 +23,9 @@ import MapComponent from './components/Map/Map';
 // import PopularTrips from './components/TripCards/PopularTrips';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import './App.css';
-import Explore from './pages/Explore/Explore';
-import Trips from './pages/Trips/Trips';
-import ExploreTo from './pages/Explore/ExploreTo';
+import Explore from './Pages/Explore/Explore';
+import Trips from './Pages/Trips/Trips';
+import ExploreTo from './Pages/Explore/ExploreTo';
 
 
 /**
@@ -47,6 +47,7 @@ function App() {
             <Route path="/" element={<Explore/>}/>
             <Route path="/trips" element={<Trips/>}/>
             <Route path="/ExploreTo" element={<ExploreTo/>} />
+            {/* Route for SignIn/ Sign Up here */}
           </Routes>
         </Router>
       </LoadScript>
