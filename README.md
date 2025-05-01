@@ -55,6 +55,7 @@ Think **Pinterest meets Google Docs** for trip planning—visual, social, and in
 git clone https://github.com/ttristann/navi.git
 cd navi
 
+---
 ### 2. Install Dependencies
 ```bash
 npm install @mui/material @mui/icons-material @mui/lab axios \
@@ -62,6 +63,7 @@ npm install @mui/material @mui/icons-material @mui/lab axios \
 @react-google-maps/api google-map-react \
 @vis.gl/react-google-maps
 
+---
 ### 3. Run the App
 ```bash
 npm start
