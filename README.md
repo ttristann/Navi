@@ -1,70 +1,104 @@
-# Navi – Smart Travel Planning, Redefined
+# Navi – Smart Travel Planning Redefined
 
-**Navi** is your intelligent, collaborative travel planner that goes *beyond the destination*. It helps you discover hidden gems, food spots, and must-see detours **along your route**, not just where you're going.
-
-Think **Pinterest meets Google Docs** for trip planning—visual, social, and interactive.
-
----
+**Navi** is a collaborative travel planning web app that helps you find exciting stops *along your route*, not just at your destination. It’s like **Pinterest meets Google Docs** for travel—visual, interactive, and socia
 
 ## Features
 
-- **Trip Boards** – Visually organize and plan trips with drag-and-drop ease  
-- **Smart Stop Suggestions** – Auto-recommendations for attractions, restaurants, and nature spots en route  
-- **Embedded Travel Info** – Built-in weather, maps, lodging, and more—no need to switch tabs  
-- **Offline Access** – Full itinerary available, even without Wi-Fi  
-- **Real-Time Collaboration** – Edit trips and chat with friends live  
-
----
+- **Trip Boards** – Plan, edit, and organize trips visually
+- **Stop Suggestions** – Smart detours, landmarks, and food recs en route
+- **Embedded Travel Info** – Maps, weather, restaurants, stays, and notes
+- **Budget Planner & Expense Splitter**
+- **Offline Itinerary Access** – View plans even without internet
+- **Push Notifications** – Stay in the loop on flights or trip changes
 
 ## Tech Stack
 
 ### Frontend
-- **React.js** – UI components  
-- **Tailwind CSS** – Utility-first styling  
-- **React Router** – Page navigation  
-- **Framer Motion** – Smooth animations  
-- **Axios** – API requests  
-- **PWA Support** – Works offline  
+- **React.js** – Component-based UI
+- **Tailwind CSS** – Utility-first styling
+- **React Router** – Page routing
+- **Framer Motion** – Animations
+- **Axios** – API calls
+- **PWA Support** – Offline-first experience
 
-### ⚙️ Backend
-- **Node.js + Express.js** – RESTful API  
-- **Socket.io** – Live chat and trip updates  
-- **JWT / OAuth 2.0** – Secure auth  
+### Backend
+- **Node.js + Express.js** – RESTful API server
+- **Socket.io** – Real-time chat and board updates
+- **JWT / OAuth 2.0** – Authentication
 
 ### Database
 - **MongoDB** (via Mongoose) or **PostgreSQL** (via Sequelize)
 
 ### APIs & Integrations
-- **Google Maps API** – Route plotting, pins, and geolocation  
-- **OpenWeatherMap API** – Forecasts by stop  
-- **Airbnb/Booking API** (mock or real) – Lodging listings  
-- **Currency Exchange API** – Budget calculations  
+- **Google Maps API** – Routes and location pins
+- **OpenWeatherMap API** – Forecasts per stop
+- **Airbnb/Booking API (or mock)** – Accommodation listings
+- **Currency Exchange API** – Budget conversion
 
 ### Dev Tools
-- **Vercel / Netlify** – Frontend hosting  
-- **Render / Railway / Heroku** – Backend hosting  
-- **Firebase / OneSignal** – Push alerts & messaging (optional)  
-- **Postman** – API testing  
-- **Figma** – Design mockups  
+- **Vercel / Netlify** – Frontend deployment
+- **Render / Railway / Heroku** – Backend deployment
+- **Firebase / OneSignal** – Push notifications & chat (optional)
+- **Postman** – API testing
+- **Figma** – Design & mockups
 
 
 ## Getting Started
 
-### 1. Clone the Repo
-```bash
+### Clone the repo
+
 git clone https://github.com/ttristann/navi.git
 cd navi
 
----
-### 2. Install Dependencies
+### Setup
+- Ensure you have the **latest version of Node.js** and are using **React 18**.
+- Install all required dependencies:
 ```bash
-npm install @mui/material @mui/icons-material @mui/lab axios \
-@emotion/react @emotion/styled @mui/styles \
-@react-google-maps/api google-map-react \
+npm install @mui/material @mui/icons-material @mui/lab @mui/styles \
+@emotion/react @emotion/styled \
+axios @react-google-maps/api google-map-react \
 @vis.gl/react-google-maps
-
----
-### 3. Run the App
+```
+### Run the App
 ```bash
 npm start
+```
+ ## PROJECT IS IN PROGRESS, SECTION BELOW CAN BE IGNORED
+1. **Install frontend dependencies:**
+   ```bash
+   cd client
+   npm install
+   ```
 
+2. **Install backend dependencies:**
+   ```bash
+   cd ../server
+   npm install
+   ```
+
+3. **Create `.env` files in both folders:**
+
+- `client/.env`:
+  ```
+  VITE_MAPS_API_KEY=your_google_maps_key
+  ```
+
+- `server/.env`:
+  ```
+  MONGO_URI=your_mongodb_connection_string
+  JWT_SECRET=your_jwt_secret
+  ```
+
+4. **Run development servers:**
+
+- Frontend: `npm run dev` in `/client`
+- Backend: `npm run dev` in `/server`
+
+
+## Contributing
+
+Main contributions are made by:
+
+- Tristan Galang
+- Julie Huynh
+- Christine L Duong 
