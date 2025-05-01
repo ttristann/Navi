@@ -1,6 +1,19 @@
-import React, { useState } from 'react';
-import { CssBaseline } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { 
+  CssBaseline, 
+  CircularProgress, 
+  Box, 
+  ToggleButton, 
+  ToggleButtonGroup,
+  Tooltip
+} from '@mui/material';
+import { APIProvider } from '@vis.gl/react-google-maps';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import LocalActivityIcon from '@mui/icons-material/LocalActivity';
+import ParkIcon from '@mui/icons-material/Park';
 import { LoadScript } from '@react-google-maps/api';
+
 
 // Import custom components
 import Navbar from './components/Navbar/Navbar';
@@ -12,6 +25,7 @@ import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import './App.css';
 import Explore from './pages/Explore/Explore';
 import Trips from './pages/Trips/Trips';
+import ExploreTo from './pages/Explore/ExploreTo';
 
 
 /**
@@ -32,6 +46,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Explore/>}/>
             <Route path="/trips" element={<Trips/>}/>
+            <Route path="/ExploreTo" element={<ExploreTo/>} />
           </Routes>
         </Router>
       </LoadScript>
@@ -44,5 +59,3 @@ function App() {
 }
 
 export default App;
-
-

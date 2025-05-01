@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Button, InputBase, Paper, Typography } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { useNavigate } from 'react-router-dom';
 
 function SearchBar({ onSearch }) {
   const [searchInput, setSearchInput] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef(null);
+  const navigate = useNavigate(); // Hook for navigation
   
   useEffect(() => {
     if (!window.google || !window.google.maps) {
@@ -94,7 +96,7 @@ function SearchBar({ onSearch }) {
             lng: place.geometry.location.lng()
           };
           
-          onSearch(location);
+          navigateToExploreTo(location);
         }
       }
     );
@@ -112,7 +114,7 @@ function SearchBar({ onSearch }) {
       .then(data => {
         if (data.status === 'OK' && data.results.length > 0) {
           const location = data.results[0].geometry.location;
-          onSearch({ lat: location.lat, lng: location.lng });
+          navigateToExploreTo({ lat: location.lat, lng: location.lng });
         } else {
           alert('Place not found!');
         }
@@ -120,6 +122,17 @@ function SearchBar({ onSearch }) {
       .catch(err => {
         console.error('Geocode API error:', err);
       });
+  };
+
+  // Function to navigate to ExploreTo with coordinates
+  const navigateToExploreTo = (location) => {
+    // If onSearch prop exists, call it (for backward compatibility)
+    if (onSearch) {
+      onSearch(location);
+    }
+    
+    // Navigate to ExploreTo with coordinates as URL parameters
+    navigate(`/ExploreTo?lat=${location.lat}&lng=${location.lng}`);
   };
   
   const handleKeyPress = (e) => {
