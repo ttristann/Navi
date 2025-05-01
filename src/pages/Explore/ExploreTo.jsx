@@ -208,11 +208,6 @@ function ExploreTo() {
     <APIProvider apiKey={apiKey} libraries={['places']}>
       {/* CssBaseline normalizes and resets browser default styles */}
       <CssBaseline />
-
-      {/* Top navigation bar */}
-      {/* <div style={{ position: 'fixed', top: 0, width: '100%', zIndex: 3 }}>
-        <Header onSearch={handleHeaderSearch} />
-      </div> */}
       
       {/* Category Filters */}
       <div style={{ position: 'fixed', top: '10vh', width: '100%', zIndex: 2, display: 'flex', justifyContent: 'center', padding: '10px', backgroundColor: '#f5f5f5' }}>
