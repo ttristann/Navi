@@ -99,23 +99,37 @@ const MapComponent = ({
 //   }, [origin, destination, map]);
 
   const getCategoryIcon = (category) => {
-    if (category === 'restaurants') return '🍴';
-    if (category === 'shopping') return '🛍️';
-    if (category === 'attractions') return '🎭';
-    if (category === 'parks') return '🌳';
-    return '📍';
+    if (category === 'restaurants') return 'R';
+    if (category === 'shopping') return 'S';
+    if (category === 'attractions') return 'A';
+    if (category === 'parks') return 'P';
+    return '?';
   };
 
   const renderInfoContent = (place) => (
-    <Box sx={{ padding: 1, maxWidth: 250 }}>
-      <Box display="flex" alignItems="center" gap={1}>
+    <Box
+      sx={{
+        width: 280,
+        minWidth: 280,
+        maxWidth: 280,
+        height: 250,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        padding: 1.5,
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box',
+        backgroundColor: '#fff', // Ensure consistent background
+      }}
+    >
+      <Box display="flex" alignItems="center" gap={1} mb={1}>
         <Box sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
           width: 32,
           height: 32,
           borderRadius: '50%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
           backgroundColor:
             place.category === 'restaurants' ? '#F44336' :
             place.category === 'shopping' ? '#2196F3' :
@@ -123,52 +137,58 @@ const MapComponent = ({
             place.category === 'parks' ? '#4CAF50' :
             '#757575',
           color: '#FFFFFF',
-          fontSize: '18px'
+          fontSize: '18px',
+          flexShrink: 0
         }}>
           {getCategoryIcon(place.category)}
         </Box>
-        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 'bold', flexGrow: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+        >
           {place.name}
         </Typography>
       </Box>
-
+  
       {place.rating && (
-        <Box display="flex" alignItems="center" mt={1} mb={0.5}>
+        <Box display="flex" alignItems="center" mb={0.5}>
           <Rating size="small" value={Number(place.rating)} precision={0.5} readOnly />
-          <Typography variant="body2" sx={{ ml: 0.5 }}>
+          <Typography variant="body2" sx={{ ml: 0.5, whiteSpace: 'nowrap' }}>
             {place.rating} ({place.user_ratings_total || 0})
           </Typography>
         </Box>
       )}
-
+  
       {place.price_level && (
-        <Box mt={0.5}>
-          <Typography variant="body2" color="text.secondary">
-            {'$'.repeat(place.price_level)}
-          </Typography>
-        </Box>
+        <Typography variant="body2" color="text.secondary" mb={0.5}>
+          {'$'.repeat(place.price_level)}
+        </Typography>
       )}
-
+  
       {place.photo && (
         <img
           src={place.photo}
           alt={place.name}
-          style={{ width: '100%', height: 120, objectFit: 'cover', marginTop: 8, borderRadius: 4 }}
+          style={{
+            width: '100%',
+            height: 100,
+            objectFit: 'cover',
+            borderRadius: 4,
+            marginBottom: 8,
+          }}
         />
       )}
-
-      <Typography variant="body2" sx={{ mt: 1 }}>
+  
+      <Typography variant="body2" sx={{ mb: 0.5 }}>
         {place.address || place.vicinity}
       </Typography>
-
+  
       {place.category && (
-        <Box mt={1} display="flex" alignItems="center">
-          <Typography variant="body2" fontWeight="bold" sx={{ textTransform: 'capitalize' }}>
-            {place.category}
-          </Typography>
-        </Box>
+        <Typography variant="body2" fontWeight="bold" sx={{ textTransform: 'capitalize' }}>
+          {place.category}
+        </Typography>
       )}
-
+  
       {place.opening_hours && (
         <Typography variant="body2" color={place.opening_hours.open_now ? "success.main" : "error.main"} sx={{ mt: 0.5 }}>
           {place.opening_hours.open_now ? "Open now" : "Closed"}
@@ -176,6 +196,7 @@ const MapComponent = ({
       )}
     </Box>
   );
+  
 
   return (
     <div className={classes.mapContainer}>

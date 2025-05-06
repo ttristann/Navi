@@ -204,53 +204,104 @@ function ExploreTo() {
     setCoordinates(newCoordinates);
   };
 
+  // Handle filter changes
+  const handleFilterChange = (event, newFilters) => {
+    setActiveFilters(newFilters.length ? newFilters : ['restaurants', 'shopping', 'attractions', 'parks']);
+  };
+
   return (
     <APIProvider apiKey={apiKey} libraries={['places']}>
       {/* CssBaseline normalizes and resets browser default styles */}
       <CssBaseline />
-      
-      {/* Category Filters */}
-      <div style={{ position: 'fixed', top: '10vh', width: '100%', zIndex: 2, display: 'flex', justifyContent: 'center', padding: '10px', backgroundColor: '#f5f5f5' }}>
-        <ToggleButtonGroup
-          value={activeFilters}
-          onChange={(event, newFilters) => {
-            setActiveFilters(newFilters.length ? newFilters : ['restaurants', 'shopping', 'attractions', 'parks']);
-          }}
-          aria-label="place categories"
-          color="primary"
-        >
-          <ToggleButton value="restaurants" aria-label="food and drinks">
-            <Tooltip title="Food & Drinks">
-              <RestaurantIcon />
-            </Tooltip>
-          </ToggleButton>
-          <ToggleButton value="shopping" aria-label="shopping and retail">
-            <Tooltip title="Shopping & Retail">
-              <ShoppingBagIcon />
-            </Tooltip>
-          </ToggleButton>
-          <ToggleButton value="attractions" aria-label="activities and attractions">
-            <Tooltip title="Activities & Attractions">
-              <LocalActivityIcon />
-            </Tooltip>
-          </ToggleButton>
-          <ToggleButton value="parks" aria-label="parks and landmarks">
-            <Tooltip title="Parks & Landmarks">
-              <ParkIcon />
-            </Tooltip>
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </div>
 
       {/* Main content layout */}
-      <div style={{ display: 'flex', flexDirection: 'row', marginTop: '15vh', height: '85vh' }}>
-        {/* Left side: List Display */}
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          <List 
-            places={places} 
-            isLoading={isLoading} 
-            onPlaceSelect={handlePlaceSelect} 
-          />
+      <div style={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
+        {/* Left side: List Display with filters above */}
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          {/* Filter buttons now inside the list column */}
+          <div style={{ padding: '10px', zIndex: 1, display: 'flex', justifyContent: 'center' }}>
+            <ToggleButtonGroup
+              value={activeFilters}
+              onChange={handleFilterChange}
+              aria-label="place categories"
+              size="small"
+              style={{ display: 'flex', justifyContent: 'center' }}
+            >
+              <ToggleButton 
+                value="restaurants" 
+                aria-label="food and drinks"
+                style={{ 
+                  borderRadius: '4px', 
+                  margin: '0 2px', 
+                  paddingLeft: '12px', 
+                  paddingRight: '12px',
+                  backgroundColor: activeFilters.includes('restaurants') ? '#1565c0' : '#e3f2fd',
+                  color: activeFilters.includes('restaurants') ? 'white' : '#1976d2'
+                }}
+              >
+                <Tooltip title="Food & Drinks">
+                  <RestaurantIcon />
+                </Tooltip>
+              </ToggleButton>
+              <ToggleButton 
+                value="shopping" 
+                aria-label="shopping and retail"
+                style={{ 
+                  borderRadius: '4px', 
+                  margin: '0 2px', 
+                  paddingLeft: '12px', 
+                  paddingRight: '12px',
+                  backgroundColor: activeFilters.includes('shopping') ? '#1565c0' : '#e3f2fd',
+                  color: activeFilters.includes('shopping') ? 'white' : '#1976d2'
+                }}
+              >
+                <Tooltip title="Shopping & Retail">
+                  <ShoppingBagIcon />
+                </Tooltip>
+              </ToggleButton>
+              <ToggleButton 
+                value="attractions" 
+                aria-label="activities and attractions"
+                style={{ 
+                  borderRadius: '4px', 
+                  margin: '0 2px', 
+                  paddingLeft: '12px', 
+                  paddingRight: '12px',
+                  backgroundColor: activeFilters.includes('attractions') ? '#1565c0' : '#e3f2fd',
+                  color: activeFilters.includes('attractions') ? 'white' : '#1976d2'
+                }}
+              >
+                <Tooltip title="Activities & Attractions">
+                  <LocalActivityIcon />
+                </Tooltip>
+              </ToggleButton>
+              <ToggleButton 
+                value="parks" 
+                aria-label="parks and landmarks"
+                style={{ 
+                  borderRadius: '4px', 
+                  margin: '0 2px', 
+                  paddingLeft: '12px', 
+                  paddingRight: '12px',
+                  backgroundColor: activeFilters.includes('parks') ? '#1565c0' : '#e3f2fd',
+                  color: activeFilters.includes('parks') ? 'white' : '#1976d2'
+                }}
+              >
+                <Tooltip title="Parks & Landmarks">
+                  <ParkIcon />
+                </Tooltip>
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </div>
+          
+          {/* List component */}
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            <List 
+              places={places} 
+              isLoading={isLoading} 
+              onPlaceSelect={handlePlaceSelect} 
+            />
+          </div>
         </div>
 
         {/* Right side: Map Display */}
