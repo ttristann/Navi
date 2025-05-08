@@ -59,6 +59,13 @@ npm install @mui/material @mui/icons-material @mui/lab @mui/styles \
 axios @react-google-maps/api google-map-react \
 @vis.gl/react-google-maps
 ```
+- install postgres:
+- mac: brew install postgresql@15
+- pc: look it up, sorry julie lol
+- in backend/server directory:
+- npm install express pg cors
+- npm install nodemon -D 
+- add more
 ### Run the App
 ```bash
 npm start
