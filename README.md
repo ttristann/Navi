@@ -52,6 +52,7 @@ cd navi
 
 ### Setup
 - Ensure you have the **latest version of Node.js** and are using **React 18**.
+- ensure .env is in your client directory
 - Install all required dependencies:
 ```bash
 npm install @mui/material @mui/icons-material @mui/lab @mui/styles \
