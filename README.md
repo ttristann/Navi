@@ -66,6 +66,8 @@ axios @react-google-maps/api google-map-react \
 - in backend/server directory:
 - npm install express pg cors
 - npm install nodemon -D 
+- npm install morgan
+- npm install helmet
 - add MORE
 ### Run the App
 ```bash
