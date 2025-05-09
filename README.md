@@ -71,6 +71,7 @@ axios @react-google-maps/api google-map-react \
 - add MORE
 ### Run the App
 ```bash
+cd client
 npm start
 ```
  ## PROJECT IS IN PROGRESS, SECTION BELOW CAN BE IGNORED
