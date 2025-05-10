@@ -43,8 +43,8 @@ function ExploreTo() {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
-  // Available category filters
-  const [activeFilters, setActiveFilters] = useState(['restaurants', 'shopping', 'attractions', 'parks']);
+  // Set default active filter to 'restaurants' only
+  const [activeFilter, setActiveFilter] = useState('restaurants');
   
   // Category to Places API type mapping
   const categoryMapping = {
@@ -135,24 +135,18 @@ function ExploreTo() {
           return 'other';
         };
         
-        // Fetch places for each active filter
+        // Fetch places for the active filter only
         const fetchPromises = [];
         
-        // Get all types from active filters
-        const typesToFetch = [];
-        activeFilters.forEach(filter => {
-          if (categoryMapping[filter]) {
-            typesToFetch.push(...categoryMapping[filter]);
-          }
-        });
-        
-        // Remove duplicates
-        const uniqueTypes = [...new Set(typesToFetch)];
-        
-        // Fetch places for each unique type
-        uniqueTypes.forEach(type => {
-          fetchPromises.push(fetchPlacesByType(type));
-        });
+        if (categoryMapping[activeFilter]) {
+          // Get types for the active filter
+          const typesToFetch = categoryMapping[activeFilter];
+          
+          // Fetch places for each type in the active filter
+          typesToFetch.forEach(type => {
+            fetchPromises.push(fetchPlacesByType(type));
+          });
+        }
         
         // Wait for all fetches to complete
         const results = await Promise.all(fetchPromises);
@@ -160,7 +154,8 @@ function ExploreTo() {
         // Combine all results and remove duplicates
         results.forEach(placeArray => {
           placeArray.forEach(place => {
-            if (!allPlaces.some(p => p.id === place.id)) {
+            // Only add places that match the active filter category
+            if (place.category === activeFilter && !allPlaces.some(p => p.id === place.id)) {
               allPlaces.push(place);
             }
           });
@@ -187,7 +182,7 @@ function ExploreTo() {
     }, 1000);
     
     return () => clearTimeout(timer);
-  }, [coordinates, activeFilters]);
+  }, [coordinates, activeFilter]);
 
   // Handle place selection from the list
   const handlePlaceSelect = (place) => {
@@ -204,9 +199,12 @@ function ExploreTo() {
     setCoordinates(newCoordinates);
   };
 
-  // Handle filter changes
-  const handleFilterChange = (event, newFilters) => {
-    setActiveFilters(newFilters.length ? newFilters : ['restaurants', 'shopping', 'attractions', 'parks']);
+  // Handle filter changes - only one filter can be active at a time
+  const handleFilterChange = (event, newFilter) => {
+    // If user tries to deselect all filters, keep the current one active
+    if (newFilter !== null) {
+      setActiveFilter(newFilter);
+    }
   };
 
   return (
@@ -221,7 +219,8 @@ function ExploreTo() {
           {/* Filter buttons now inside the list column */}
           <div style={{ padding: '10px', zIndex: 1, display: 'flex', justifyContent: 'center' }}>
             <ToggleButtonGroup
-              value={activeFilters}
+              value={activeFilter}
+              exclusive
               onChange={handleFilterChange}
               aria-label="place categories"
               size="small"
@@ -235,8 +234,8 @@ function ExploreTo() {
                   margin: '0 2px', 
                   paddingLeft: '12px', 
                   paddingRight: '12px',
-                  backgroundColor: activeFilters.includes('restaurants') ? '#1565c0' : '#e3f2fd',
-                  color: activeFilters.includes('restaurants') ? 'white' : '#1976d2'
+                  backgroundColor: activeFilter === 'restaurants' ? '#F44336' : '#e3f2fd',
+                  color: activeFilter === 'restaurants' ? 'white' : '#F44336'
                 }}
               >
                 <Tooltip title="Food & Drinks">
@@ -251,8 +250,8 @@ function ExploreTo() {
                   margin: '0 2px', 
                   paddingLeft: '12px', 
                   paddingRight: '12px',
-                  backgroundColor: activeFilters.includes('shopping') ? '#1565c0' : '#e3f2fd',
-                  color: activeFilters.includes('shopping') ? 'white' : '#1976d2'
+                  backgroundColor: activeFilter === 'shopping' ? '#2196F3' : '#e3f2fd',
+                  color: activeFilter === 'shopping' ? 'white' : '#2196F3'
                 }}
               >
                 <Tooltip title="Shopping & Retail">
@@ -267,8 +266,8 @@ function ExploreTo() {
                   margin: '0 2px', 
                   paddingLeft: '12px', 
                   paddingRight: '12px',
-                  backgroundColor: activeFilters.includes('attractions') ? '#1565c0' : '#e3f2fd',
-                  color: activeFilters.includes('attractions') ? 'white' : '#1976d2'
+                  backgroundColor: activeFilter === 'attractions' ? '#FF9800' : '#e3f2fd',
+                  color: activeFilter === 'attractions' ? 'white' : '#FF9800'
                 }}
               >
                 <Tooltip title="Activities & Attractions">
@@ -283,8 +282,8 @@ function ExploreTo() {
                   margin: '0 2px', 
                   paddingLeft: '12px', 
                   paddingRight: '12px',
-                  backgroundColor: activeFilters.includes('parks') ? '#1565c0' : '#e3f2fd',
-                  color: activeFilters.includes('parks') ? 'white' : '#1976d2'
+                  backgroundColor: activeFilter === 'parks' ? '#4CAF50' : '#e3f2fd',
+                  color: activeFilter === 'parks' ? 'white' : '#4CAF50'
                 }}
               >
                 <Tooltip title="Parks & Landmarks">
