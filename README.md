@@ -59,6 +59,8 @@ npm install @mui/material @mui/icons-material @mui/lab @mui/styles \
 @emotion/react @emotion/styled \
 axios @react-google-maps/api google-map-react \
 @vis.gl/react-google-maps
+
+npm install date-fns
 ```
 - install postgres:
 - mac: brew install postgresql@15
