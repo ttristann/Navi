@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Box, 
   Typography, 
@@ -11,12 +11,11 @@ import {
   Grid
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import PhoneIcon from '@mui/icons-material/Phone';
-import PlaceIcon from '@mui/icons-material/Place';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 /**
  * List component
- * Displays a list of places based on the current location
+ * Displays a list of places based on the current location with drag functionality
  */
 const List = ({ places = [], isLoading, onPlaceSelect }) => {
   if (isLoading) {
@@ -53,19 +52,77 @@ const List = ({ places = [], isLoading, onPlaceSelect }) => {
 
 /**
  * Place Card component
- * Displays information about a single place
+ * Displays information about a single place with drag functionality
  */
 const PlaceCard = ({ place, onClick }) => {
+  // State to track if the card is being dragged
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Handle drag start
+  const handleDragStart = (e) => {
+    setIsDragging(true);
+    // Store place data in the drag event
+    e.dataTransfer.setData('text/plain', JSON.stringify(place));
+    e.dataTransfer.effectAllowed = 'copy';
+    
+    // Create a drag image
+    const dragImage = document.createElement('div');
+    dragImage.style.width = '100px';
+    dragImage.style.height = '30px';
+    dragImage.style.background = place.category === 'restaurants' ? '#F44336' :
+                                place.category === 'shopping' ? '#2196F3' :
+                                place.category === 'attractions' ? '#FF9800' :
+                                place.category === 'parks' ? '#4CAF50' : '#757575';
+    dragImage.style.color = '#fff';
+    dragImage.style.padding = '5px';
+    dragImage.style.borderRadius = '4px';
+    dragImage.style.display = 'flex';
+    dragImage.style.alignItems = 'center';
+    dragImage.style.justifyContent = 'center';
+    dragImage.textContent = place.name;
+    document.body.appendChild(dragImage);
+    
+    e.dataTransfer.setDragImage(dragImage, 50, 15);
+    
+    // Remove the dragImage after a moment
+    setTimeout(() => {
+      document.body.removeChild(dragImage);
+    }, 0);
+  };
+
+  // Handle drag end
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
   return (
     <Card 
       elevation={2}
       sx={{ 
         display: 'flex', 
-        cursor: 'pointer',
+        cursor: isDragging ? 'grabbing' : 'pointer',
+        opacity: isDragging ? 0.7 : 1,
         '&:hover': { boxShadow: 6 }
       }}
-      onClick={onClick}
+      onClick={() => !isDragging && onClick()}
+      draggable="true"
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
     >
+      {/* Drag Handle Indicator */}
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          padding: '0 4px',
+          color: 'text.secondary',
+          cursor: 'grab'
+        }}
+      >
+        <DragIndicatorIcon />
+      </Box>
+      
       {/* Place Image */}
       {place.photo && (
         <CardMedia

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
   CssBaseline, 
-  CircularProgress, 
   Box, 
   ToggleButton, 
   ToggleButtonGroup,
-  Tooltip
+  Tooltip,
+  Divider
 } from '@mui/material';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
@@ -18,10 +18,12 @@ import { useLocation } from 'react-router-dom';
 import Header from '../../components/Headers/Header';
 import List from '../../components/List/List';
 import MapComponent from '../../components/Map/Map';
+import Calendar from '../../components/Calendar/Calendar';
 
 /**
  * ExploreTo component
  * Displays a map and list of places based on coordinates from URL parameters
+ * with a calendar for scheduling places
  */
 function ExploreTo() {
   // Default coordinates (Los Angeles)
@@ -42,6 +44,7 @@ function ExploreTo() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+  const [scheduledEvents, setScheduledEvents] = useState([]);
 
   // Set default active filter to 'restaurants' only
   const [activeFilter, setActiveFilter] = useState('restaurants');
@@ -207,109 +210,134 @@ function ExploreTo() {
     }
   };
 
+  // Handle event added to calendar
+  const handleEventAdded = (newEvent) => {
+    setScheduledEvents(prev => [...prev, newEvent]);
+  };
+
+  // Handle event removed from calendar
+  const handleEventRemoved = (eventId) => {
+    setScheduledEvents(prev => prev.filter(event => event.id !== eventId));
+  };
+
   return (
     <APIProvider apiKey={apiKey} libraries={['places']}>
       {/* CssBaseline normalizes and resets browser default styles */}
       <CssBaseline />
 
       {/* Main content layout */}
-      <div style={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
-        {/* Left side: List Display with filters above */}
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-          {/* Filter buttons now inside the list column */}
-          <div style={{ padding: '10px', zIndex: 1, display: 'flex', justifyContent: 'center' }}>
-            <ToggleButtonGroup
-              value={activeFilter}
-              exclusive
-              onChange={handleFilterChange}
-              aria-label="place categories"
-              size="small"
-              style={{ display: 'flex', justifyContent: 'center' }}
-            >
-              <ToggleButton 
-                value="restaurants" 
-                aria-label="food and drinks"
-                style={{ 
-                  borderRadius: '4px', 
-                  margin: '0 2px', 
-                  paddingLeft: '12px', 
-                  paddingRight: '12px',
-                  backgroundColor: activeFilter === 'restaurants' ? '#F44336' : '#e3f2fd',
-                  color: activeFilter === 'restaurants' ? 'white' : '#F44336'
-                }}
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        {/* Upper section with list and map */}
+        <div style={{ display: 'flex', flexDirection: 'row', flex: 2 }}>
+          {/* Left side: List Display with filters above */}
+          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+            {/* Filter buttons now inside the list column */}
+            <div style={{ padding: '10px', zIndex: 1, display: 'flex', justifyContent: 'center' }}>
+              <ToggleButtonGroup
+                value={activeFilter}
+                exclusive
+                onChange={handleFilterChange}
+                aria-label="place categories"
+                size="small"
+                style={{ display: 'flex', justifyContent: 'center' }}
               >
-                <Tooltip title="Food & Drinks">
-                  <RestaurantIcon />
-                </Tooltip>
-              </ToggleButton>
-              <ToggleButton 
-                value="shopping" 
-                aria-label="shopping and retail"
-                style={{ 
-                  borderRadius: '4px', 
-                  margin: '0 2px', 
-                  paddingLeft: '12px', 
-                  paddingRight: '12px',
-                  backgroundColor: activeFilter === 'shopping' ? '#2196F3' : '#e3f2fd',
-                  color: activeFilter === 'shopping' ? 'white' : '#2196F3'
-                }}
-              >
-                <Tooltip title="Shopping & Retail">
-                  <ShoppingBagIcon />
-                </Tooltip>
-              </ToggleButton>
-              <ToggleButton 
-                value="attractions" 
-                aria-label="activities and attractions"
-                style={{ 
-                  borderRadius: '4px', 
-                  margin: '0 2px', 
-                  paddingLeft: '12px', 
-                  paddingRight: '12px',
-                  backgroundColor: activeFilter === 'attractions' ? '#FF9800' : '#e3f2fd',
-                  color: activeFilter === 'attractions' ? 'white' : '#FF9800'
-                }}
-              >
-                <Tooltip title="Activities & Attractions">
-                  <LocalActivityIcon />
-                </Tooltip>
-              </ToggleButton>
-              <ToggleButton 
-                value="parks" 
-                aria-label="parks and landmarks"
-                style={{ 
-                  borderRadius: '4px', 
-                  margin: '0 2px', 
-                  paddingLeft: '12px', 
-                  paddingRight: '12px',
-                  backgroundColor: activeFilter === 'parks' ? '#4CAF50' : '#e3f2fd',
-                  color: activeFilter === 'parks' ? 'white' : '#4CAF50'
-                }}
-              >
-                <Tooltip title="Parks & Landmarks">
-                  <ParkIcon />
-                </Tooltip>
-              </ToggleButton>
-            </ToggleButtonGroup>
+                <ToggleButton 
+                  value="restaurants" 
+                  aria-label="food and drinks"
+                  style={{ 
+                    borderRadius: '4px', 
+                    margin: '0 2px', 
+                    paddingLeft: '12px', 
+                    paddingRight: '12px',
+                    backgroundColor: activeFilter === 'restaurants' ? '#F44336' : '#e3f2fd',
+                    color: activeFilter === 'restaurants' ? 'white' : '#F44336'
+                  }}
+                >
+                  <Tooltip title="Food & Drinks">
+                    <RestaurantIcon />
+                  </Tooltip>
+                </ToggleButton>
+                <ToggleButton 
+                  value="shopping" 
+                  aria-label="shopping and retail"
+                  style={{ 
+                    borderRadius: '4px', 
+                    margin: '0 2px', 
+                    paddingLeft: '12px', 
+                    paddingRight: '12px',
+                    backgroundColor: activeFilter === 'shopping' ? '#2196F3' : '#e3f2fd',
+                    color: activeFilter === 'shopping' ? 'white' : '#2196F3'
+                  }}
+                >
+                  <Tooltip title="Shopping & Retail">
+                    <ShoppingBagIcon />
+                  </Tooltip>
+                </ToggleButton>
+                <ToggleButton 
+                  value="attractions" 
+                  aria-label="activities and attractions"
+                  style={{ 
+                    borderRadius: '4px', 
+                    margin: '0 2px', 
+                    paddingLeft: '12px', 
+                    paddingRight: '12px',
+                    backgroundColor: activeFilter === 'attractions' ? '#FF9800' : '#e3f2fd',
+                    color: activeFilter === 'attractions' ? 'white' : '#FF9800'
+                  }}
+                >
+                  <Tooltip title="Activities & Attractions">
+                    <LocalActivityIcon />
+                  </Tooltip>
+                </ToggleButton>
+                <ToggleButton 
+                  value="parks" 
+                  aria-label="parks and landmarks"
+                  style={{ 
+                    borderRadius: '4px', 
+                    margin: '0 2px', 
+                    paddingLeft: '12px', 
+                    paddingRight: '12px',
+                    backgroundColor: activeFilter === 'parks' ? '#4CAF50' : '#e3f2fd',
+                    color: activeFilter === 'parks' ? 'white' : '#4CAF50'
+                  }}
+                >
+                  <Tooltip title="Parks & Landmarks">
+                    <ParkIcon />
+                  </Tooltip>
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </div>
+            
+            {/* List component */}
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              <List 
+                places={places} 
+                isLoading={isLoading} 
+                onPlaceSelect={handlePlaceSelect} 
+              />
+            </div>
           </div>
-          
-          {/* List component */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            <List 
-              places={places} 
-              isLoading={isLoading} 
-              onPlaceSelect={handlePlaceSelect} 
+
+          {/* Right side: Map Display */}
+          <div style={{ flex: 2 }}>
+            <MapComponent 
+              coordinates={coordinates} 
+              places={places}
+              selectedPlace={selectedPlace}
+              setSelectedPlace={setSelectedPlace}
             />
           </div>
         </div>
-
-        {/* Right side: Map Display */}
-        <div style={{ flex: 2 }}>
-          <MapComponent 
-            coordinates={coordinates} 
+        
+        {/* Divider between map and calendar */}
+        <Divider />
+        
+        {/* Calendar section */}
+        <div style={{ flex: 1, minHeight: '300px', padding: '10px' }}>
+          <Calendar 
             places={places}
-            selectedPlace={selectedPlace}
-            setSelectedPlace={setSelectedPlace}
+            onEventAdded={handleEventAdded}
+            onEventRemoved={handleEventRemoved}
           />
         </div>
       </div>
