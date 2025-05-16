@@ -5,7 +5,10 @@ import {
   ToggleButton, 
   ToggleButtonGroup,
   Tooltip,
-  Divider
+  Divider,
+  Typography,
+  Chip,
+  Paper
 } from '@mui/material';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
@@ -23,7 +26,7 @@ import Calendar from '../../components/Calendar/Calendar';
 /**
  * ExploreTo component
  * Displays a map and list of places based on coordinates from URL parameters
- * with a calendar for scheduling places
+ * with a calendar for scheduling places - all visible at the same time
  */
 function ExploreTo() {
   // Default coordinates (Los Angeles)
@@ -55,6 +58,15 @@ function ExploreTo() {
     'shopping': ['shopping_mall', 'store', 'clothing_store', 'electronics_store'],
     'attractions': ['tourist_attraction', 'museum', 'amusement_park', 'art_gallery'],
     'parks': ['park', 'campground', 'natural_feature', 'points_of_interest']
+  };
+
+  // Define category colors
+  const categoryColors = {
+    'restaurants': '#F44336',
+    'shopping': '#2196F3',
+    'attractions': '#FF9800',
+    'parks': '#4CAF50',
+    'default': '#FF5252'
   };
   
   // Listen for URL parameter changes
@@ -116,7 +128,8 @@ function ExploreTo() {
                   types: place.types,
                   photo: place.photos && place.photos[0] ? 
                     place.photos[0].getUrl({ maxWidth: 300, maxHeight: 200 }) : null,
-                  category: getCategoryFromTypes(place.types)
+                  category: getCategoryFromTypes(place.types),
+                  pinColor: getCategoryColor(getCategoryFromTypes(place.types))
                 }));
                 
                 resolve(mappedResults);
@@ -136,6 +149,11 @@ function ExploreTo() {
             }
           }
           return 'other';
+        };
+
+        // Get color based on category
+        const getCategoryColor = (category) => {
+          return categoryColors[category] || categoryColors.default;
         };
         
         // Fetch places for the active filter only
@@ -203,11 +221,8 @@ function ExploreTo() {
   };
 
   // Handle filter changes - only one filter can be active at a time
-  const handleFilterChange = (event, newFilter) => {
-    // If user tries to deselect all filters, keep the current one active
-    if (newFilter !== null) {
-      setActiveFilter(newFilter);
-    }
+  const handleFilterChange = (category) => {
+    setActiveFilter(category);
   };
 
   // Handle event added to calendar
@@ -222,125 +237,148 @@ function ExploreTo() {
 
   return (
     <APIProvider apiKey={apiKey} libraries={['places']}>
-      {/* CssBaseline normalizes and resets browser default styles */}
       <CssBaseline />
-
-      {/* Main content layout */}
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-        {/* Upper section with list and map */}
-        <div style={{ display: 'flex', flexDirection: 'row', flex: 2 }}>
-          {/* Left side: List Display with filters above */}
-          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-            {/* Filter buttons now inside the list column */}
-            <div style={{ padding: '10px', zIndex: 1, display: 'flex', justifyContent: 'center' }}>
-              <ToggleButtonGroup
-                value={activeFilter}
-                exclusive
-                onChange={handleFilterChange}
-                aria-label="place categories"
-                size="small"
-                style={{ display: 'flex', justifyContent: 'center' }}
-              >
-                <ToggleButton 
-                  value="restaurants" 
-                  aria-label="food and drinks"
-                  style={{ 
-                    borderRadius: '4px', 
-                    margin: '0 2px', 
-                    paddingLeft: '12px', 
-                    paddingRight: '12px',
-                    backgroundColor: activeFilter === 'restaurants' ? '#F44336' : '#e3f2fd',
-                    color: activeFilter === 'restaurants' ? 'white' : '#F44336'
-                  }}
-                >
-                  <Tooltip title="Food & Drinks">
-                    <RestaurantIcon />
-                  </Tooltip>
-                </ToggleButton>
-                <ToggleButton 
-                  value="shopping" 
-                  aria-label="shopping and retail"
-                  style={{ 
-                    borderRadius: '4px', 
-                    margin: '0 2px', 
-                    paddingLeft: '12px', 
-                    paddingRight: '12px',
-                    backgroundColor: activeFilter === 'shopping' ? '#2196F3' : '#e3f2fd',
-                    color: activeFilter === 'shopping' ? 'white' : '#2196F3'
-                  }}
-                >
-                  <Tooltip title="Shopping & Retail">
-                    <ShoppingBagIcon />
-                  </Tooltip>
-                </ToggleButton>
-                <ToggleButton 
-                  value="attractions" 
-                  aria-label="activities and attractions"
-                  style={{ 
-                    borderRadius: '4px', 
-                    margin: '0 2px', 
-                    paddingLeft: '12px', 
-                    paddingRight: '12px',
-                    backgroundColor: activeFilter === 'attractions' ? '#FF9800' : '#e3f2fd',
-                    color: activeFilter === 'attractions' ? 'white' : '#FF9800'
-                  }}
-                >
-                  <Tooltip title="Activities & Attractions">
-                    <LocalActivityIcon />
-                  </Tooltip>
-                </ToggleButton>
-                <ToggleButton 
-                  value="parks" 
-                  aria-label="parks and landmarks"
-                  style={{ 
-                    borderRadius: '4px', 
-                    margin: '0 2px', 
-                    paddingLeft: '12px', 
-                    paddingRight: '12px',
-                    backgroundColor: activeFilter === 'parks' ? '#4CAF50' : '#e3f2fd',
-                    color: activeFilter === 'parks' ? 'white' : '#4CAF50'
-                  }}
-                >
-                  <Tooltip title="Parks & Landmarks">
-                    <ParkIcon />
-                  </Tooltip>
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </div>
+      
+      {/* Main Grid Container */}
+      <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        {/* Content Area */}
+        <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
+          {/* Left Column - List */}
+          <Paper sx={{ 
+            width: '30%', 
+            display: 'flex', 
+            flexDirection: 'column',
+            borderRadius: 0,
+            boxShadow: 'none',
+            borderRight: '1px solid rgba(0, 0, 0, 0.12)',
+            bgcolor: '#1a2642' // Dark blue background like in wireframe
+          }}>
+            {/* Filter Buttons */}
+            <Box sx={{ p: 1 }}>
+              <Box sx={{ mb: 1, px: 2 }}>
+                <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold', py: 1 }}>
+                  Suggested Stops
+                </Typography>
+              </Box>
+              
+              {/* Updated filter buttons structure */}
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                justifyContent: 'center',
+                gap: 2,
+                px: 2,
+                py: 1
+              }}>
+                <Box sx={{ 
+                  width: '45%', 
+                  bgcolor: activeFilter === 'restaurants' ? '#000' : '#fff',
+                  color: activeFilter === 'restaurants' ? '#fff' : '#000',
+                  py: 1.5,
+                  px: 1,
+                  borderRadius: 1,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  fontWeight: 'medium',
+                  fontSize: '0.875rem'
+                }}
+                onClick={() => handleFilterChange('restaurants')}>
+                  food/drinks
+                </Box>
+                
+                <Box sx={{ 
+                  width: '45%', 
+                  bgcolor: activeFilter === 'shopping' ? '#000' : '#fff',
+                  color: activeFilter === 'shopping' ? '#fff' : '#000',
+                  py: 1.5,
+                  px: 1,
+                  borderRadius: 1,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  fontWeight: 'medium',
+                  fontSize: '0.875rem'
+                }}
+                onClick={() => handleFilterChange('shopping')}>
+                  shopping/retail
+                </Box>
+                
+                <Box sx={{ 
+                  width: '45%', 
+                  bgcolor: activeFilter === 'attractions' ? '#000' : '#fff',
+                  color: activeFilter === 'attractions' ? '#fff' : '#000',
+                  py: 1.5,
+                  px: 1,
+                  borderRadius: 1,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  fontWeight: 'medium',
+                  fontSize: '0.875rem'
+                }}
+                onClick={() => handleFilterChange('attractions')}>
+                  adventure/activities
+                </Box>
+                
+                <Box sx={{ 
+                  width: '45%', 
+                  bgcolor: activeFilter === 'parks' ? '#000' : '#fff',
+                  color: activeFilter === 'parks' ? '#fff' : '#000',
+                  py: 1.5,
+                  px: 1,
+                  borderRadius: 1,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  fontWeight: 'medium',
+                  fontSize: '0.875rem'
+                }}
+                onClick={() => handleFilterChange('parks')}>
+                  landmark/park
+                </Box>
+              </Box>
+            </Box>
             
-            {/* List component */}
-            <div style={{ flex: 1, overflowY: 'auto' }}>
+            {/* Places List - Scrollable */}
+            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
               <List 
                 places={places} 
                 isLoading={isLoading} 
                 onPlaceSelect={handlePlaceSelect} 
               />
-            </div>
-          </div>
-
-          {/* Right side: Map Display */}
-          <div style={{ flex: 2 }}>
-            <MapComponent 
-              coordinates={coordinates} 
-              places={places}
-              selectedPlace={selectedPlace}
-              setSelectedPlace={setSelectedPlace}
-            />
-          </div>
-        </div>
-        
-        {/* Divider between map and calendar */}
-        <Divider />
-        
-        {/* Calendar section */}
-        <div style={{ flex: 1, minHeight: '300px', padding: '10px' }}>
-          <Calendar 
-            places={places}
-            onEventAdded={handleEventAdded}
-            onEventRemoved={handleEventRemoved}
-          />
-        </div>
-      </div>
+            </Box>
+          </Paper>
+          
+          {/* Right Column - Map and Calendar */}
+          <Box sx={{ 
+            width: '70%', 
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%'
+          }}>
+            {/* Map Component - Takes upper 60% */}
+            <Box sx={{ height: '60%', position: 'relative' }}>
+              <MapComponent 
+                coordinates={coordinates} 
+                places={places}
+                selectedPlace={selectedPlace}
+                setSelectedPlace={setSelectedPlace}
+              />
+            </Box>
+            
+            {/* Calendar Component - Takes lower 40% */}
+            <Box sx={{ 
+              height: '40%', 
+              borderTop: '1px solid rgba(0, 0, 0, 0.12)',
+              overflow: 'auto',
+              p: 2
+            }}>
+              <Calendar 
+                places={places}
+                onEventAdded={handleEventAdded}
+                onEventRemoved={handleEventRemoved}
+              />
+            </Box>
+          </Box>
+        </Box>
+      </Box>
     </APIProvider>
   );
 }

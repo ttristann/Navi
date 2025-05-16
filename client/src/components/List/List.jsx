@@ -28,9 +28,9 @@ const List = ({ places = [], isLoading, onPlaceSelect }) => {
 
   return (
     <Box sx={{ padding: 2 }}>
-      <Typography variant="h5" sx={{ marginBottom: 2 }}>
+      {/* <Typography variant="h5" sx={{ marginBottom: 2 }}>
         Places nearby
-      </Typography>
+      </Typography> */}
       
       {places.length === 0 ? (
         <Typography variant="body1">No places found in this area.</Typography>

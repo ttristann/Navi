@@ -11,7 +11,9 @@ const MapComponent = ({
   selectedPlace: propSelectedPlace,
   setSelectedPlace: propSetSelectedPlace,
   origin,
-  destination
+  destination,
+  height = '470px', // Added a configurable height prop with default
+  width = '100%'     // Added a configurable width prop with default
 }) => {
   const classes = useStyles();
   const isMobile = useMediaQuery('(min-width:600px)');
@@ -39,65 +41,6 @@ const MapComponent = ({
     map.fitBounds(bounds);
   }, [map, places, coordinates]);
 
-  // Get directions between origin and destination --> USEFUL WHEN THE USER SELECTS "CREATE ROADTRIP"
-//   useEffect(() => {
-//     if (!origin || !destination || !window.google || !map) return;
-  
-//     const directionsService = new window.google.maps.DirectionsService();
-//     const renderer = new window.google.maps.DirectionsRenderer({
-//       suppressMarkers: true,
-//       preserveViewport: true,
-//     });
-  
-//     directionsService.route(
-//       {
-//         origin,
-//         destination,
-//         travelMode: window.google.maps.TravelMode.DRIVING,
-//       },
-//       (result, status) => {
-//         if (status === 'OK' && result.routes?.length > 0) {
-//           renderer.setDirections(result);
-//           renderer.setMap(map);
-//           setDirectionsRenderer(renderer);
-  
-//           const bounds = new window.google.maps.LatLngBounds();
-//           const route = result.routes[0];
-  
-//           route.legs.forEach((leg) => {
-//             bounds.extend(leg.start_location);
-//             bounds.extend(leg.end_location);
-//           });
-  
-//           map.fitBounds(bounds);
-
-//           // Extract breakpoints from overview_path
-//           const path = result.routes[0].overview_path;
-//           const numberOfPoints = 5; // The number of breakpoints can be changed based on the user's preference
-//           const interval = Math.floor(path.length / numberOfPoints);
-//           const breakpoints = [];
-
-//           for (let i = 0; i < numberOfPoints; i++) {
-//             const point = path[i * interval];
-//             if (point) {
-//               breakpoints.push({ lat: point.lat(), lng: point.lng() });
-//             }
-//           }
-
-//           setRouteBreakpoints(breakpoints);
-//         } else {
-//           console.error('Directions request failed due to', status);
-//         }
-//       }
-//     );
-  
-//     return () => {
-//       if (directionsRenderer) {
-//         directionsRenderer.setMap(null);
-//       }
-//     };
-//   }, [origin, destination, map]);
-
   const getCategoryIcon = (category) => {
     if (category === 'restaurants') return 'R';
     if (category === 'shopping') return 'S';
@@ -106,26 +49,27 @@ const MapComponent = ({
     return '?';
   };
 
+  // Make info window smaller to match reduced map size
   const renderInfoContent = (place) => (
     <Box
       sx={{
-        width: 280,
-        minWidth: 280,
-        maxWidth: 280,
-        height: 250,
+        width: 240,
+        minWidth: 240,
+        maxWidth: 240,
+        height: 200,
         overflowY: 'auto',
         overflowX: 'hidden',
-        padding: 1.5,
+        padding: 1,
         display: 'flex',
         flexDirection: 'column',
         boxSizing: 'border-box',
-        backgroundColor: '#fff', // Ensure consistent background
+        backgroundColor: '#fff',
       }}
     >
       <Box display="flex" alignItems="center" gap={1} mb={1}>
         <Box sx={{
-          width: 32,
-          height: 32,
+          width: 28,
+          height: 28,
           borderRadius: '50%',
           display: 'flex',
           justifyContent: 'center',
@@ -137,13 +81,13 @@ const MapComponent = ({
             place.category === 'parks' ? '#4CAF50' :
             '#757575',
           color: '#FFFFFF',
-          fontSize: '18px',
+          fontSize: '16px',
           flexShrink: 0
         }}>
           {getCategoryIcon(place.category)}
         </Box>
         <Typography
-          variant="subtitle1"
+          variant="subtitle2"
           sx={{ fontWeight: 'bold', flexGrow: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
         >
           {place.name}
@@ -171,10 +115,10 @@ const MapComponent = ({
           alt={place.name}
           style={{
             width: '100%',
-            height: 100,
+            height: 80,
             objectFit: 'cover',
             borderRadius: 4,
-            marginBottom: 8,
+            marginBottom: 6,
           }}
         />
       )}
@@ -197,9 +141,18 @@ const MapComponent = ({
     </Box>
   );
   
+  // Custom container style to ensure the map stays within bounds
+  const containerStyle = {
+    height: height,
+    width: width,
+    position: 'relative',
+    overflow: 'hidden',
+    borderRadius: '0px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+  };
 
   return (
-    <div className={classes.mapContainer}>
+    <div style={containerStyle}>
       <Map
         mapId={process.env.REACT_APP_GOOGLE_MAP_ID || 'demo-map-id'}
         defaultCenter={coordinates}
@@ -208,9 +161,13 @@ const MapComponent = ({
         style={{ width: '100%', height: '100%' }}
         options={{
           mapTypeControl: false,
-          streetViewControl: true,
+          streetViewControl: false, // Removed street view to save space
           fullscreenControl: true,
-          gestureHandling: 'greedy'
+          gestureHandling: 'cooperative', // Changed to cooperative instead of greedy
+          zoomControl: true,
+          zoomControlOptions: {
+            position: 9 // GOOGLE_MAP.CONTROL_POSITION.RIGHT_BOTTOM
+          }
         }}
       >
         <AdvancedMarker position={coordinates} title="Current Location">
@@ -245,7 +202,7 @@ const MapComponent = ({
             </AdvancedMarker>
           );
         })}
-        {/* Small pop-up windows when location/marker is clicked on the map */}
+        
         {selectedPlace && (
           <InfoWindow
             position={{
@@ -258,7 +215,6 @@ const MapComponent = ({
           </InfoWindow>
         )}
 
-        {/* Special Breakpoint Markers */}
         {routeBreakpoints.map((point, index) => (
           <AdvancedMarker
             key={`breakpoint-${index}`}
