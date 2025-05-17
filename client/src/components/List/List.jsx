@@ -28,12 +28,8 @@ const List = ({ places = [], isLoading, onPlaceSelect }) => {
 
   return (
     <Box sx={{ padding: 2 }}>
-      {/* <Typography variant="h5" sx={{ marginBottom: 2 }}>
-        Places nearby
-      </Typography> */}
-      
       {places.length === 0 ? (
-        <Typography variant="body1">No places found in this area.</Typography>
+        <Typography variant="body1" sx={{ color: 'white' }}>No places found in this area.</Typography>
       ) : (
         <Grid container spacing={2}>
           {places.map((place, index) => (
@@ -61,8 +57,9 @@ const PlaceCard = ({ place, onClick }) => {
   // Handle drag start
   const handleDragStart = (e) => {
     setIsDragging(true);
-    // Store place data in the drag event
-    e.dataTransfer.setData('text/plain', JSON.stringify(place));
+    
+    // Store complete place data in the drag event
+    e.dataTransfer.setData('application/json', JSON.stringify(place));
     e.dataTransfer.effectAllowed = 'copy';
     
     // Create a drag image

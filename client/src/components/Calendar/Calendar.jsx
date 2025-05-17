@@ -19,7 +19,7 @@ import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
 const CalendarContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  height: '300px',
+  height: '1500px',
   overflow: 'hidden',
   borderRadius: theme.shape.borderRadius,
   boxShadow: theme.shadows[2]
@@ -52,7 +52,7 @@ const DayColumn = styled(Box)(({ theme, isToday }) => ({
 const CalendarGrid = styled(Box)({
   display: 'flex',
   flex: 1,
-  overflowY: 'auto'
+  overflow: 'auto'
 });
 
 const TimeColumn = styled(Box)(({ theme }) => ({
@@ -86,9 +86,12 @@ const DayColumn2 = styled(Box)({
 const DropZone = styled(Box)(({ theme, isOver }) => ({
   height: '50px',
   borderBottom: '1px solid #f0f0f0',
-  backgroundColor: isOver ? theme.palette.action.hover : 'transparent',
+  backgroundColor: isOver ? 'rgba(33, 150, 243, 0.1)' : 'transparent',
   transition: 'background-color 0.2s',
-  position: 'relative'
+  position: 'relative',
+  '&:hover': {
+    backgroundColor: 'rgba(0, 0, 0, 0.04)'
+  }
 }));
 
 const EventItem = styled(Paper)(({ theme, category }) => {
@@ -139,7 +142,6 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [weekStart, setWeekStart] = useState(startOfWeek(currentDate, { weekStartsOn: 1 }));
   const [events, setEvents] = useState([]);
-  const [draggedPlace, setDraggedPlace] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
   
   // Generate week days
@@ -153,9 +155,9 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
     };
   });
   
-  // Generate time slots
-  const timeSlots = Array.from({ length: 12 }, (_, i) => {
-    const hour = i + 8; // Start at 8 AM
+  // Generate time slots for 24 hours (0 to 23)
+  const timeSlots = Array.from({ length: 24 }, (_, i) => {
+    const hour = i; // 0 to 23
     return {
       hour,
       label: `${hour % 12 === 0 ? 12 : hour % 12} ${hour >= 12 ? 'PM' : 'AM'}`
@@ -174,18 +176,10 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
     setWeekStart(newWeekStart);
   };
   
-  // Handle drag start
-  const handleDragStart = (e, place) => {
-    setDraggedPlace(place);
-    // Set custom drag image or data if needed
-    e.dataTransfer.setData('text/plain', place.id);
-    e.dataTransfer.effectAllowed = 'copy';
-  };
-  
   // Handle drag over
-  const handleDragOver = (e, day, hour) => {
+  const handleDragOver = (e, dayIndex, hourIndex) => {
     e.preventDefault();
-    setDropTarget({ day, hour });
+    setDropTarget({ day: dayIndex, hour: hourIndex });
   };
   
   // Handle drag leave
@@ -196,16 +190,52 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
   // Handle drop
   const handleDrop = (e, dayIndex, hourIndex) => {
     e.preventDefault();
-    if (!draggedPlace) return;
+    
+    let placeData;
+    
+    try {
+      // Try to get the JSON data from the drag event
+      const jsonData = e.dataTransfer.getData('application/json');
+      if (jsonData) {
+        placeData = JSON.parse(jsonData);
+      }
+    } catch (error) {
+      console.error('Error parsing place data:', error);
+    }
+    
+    // If we couldn't get JSON data, try text data as fallback
+    if (!placeData) {
+      try {
+        const textData = e.dataTransfer.getData('text/plain');
+        if (textData) {
+          // Try to parse as JSON if it's a stringified object
+          try {
+            placeData = JSON.parse(textData);
+          } catch (error) {
+            // If it's not JSON, it might be just the ID
+            // Try to find the place by ID from the places prop
+            const placeId = textData;
+            placeData = places.find(p => p.id === placeId);
+          }
+        }
+      } catch (error) {
+        console.error('Error getting place data from drag event:', error);
+      }
+    }
+    
+    if (!placeData) {
+      console.error('No valid place data found in the drag event');
+      return;
+    }
     
     const day = weekDays[dayIndex].date;
     const hour = timeSlots[hourIndex].hour;
     const endHour = hour + 1; // Default 1 hour event
     
     const newEvent = {
-      id: `event-${draggedPlace.id}-${Date.now()}`,
-      placeId: draggedPlace.id,
-      place: draggedPlace,
+      id: `event-${placeData.id}-${Date.now()}`,
+      placeId: placeData.id,
+      place: placeData,
       date: day,
       startHour: hour,
       endHour: endHour,
@@ -219,12 +249,12 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
       onEventAdded(newEvent);
     }
     
-    setDraggedPlace(null);
     setDropTarget(null);
   };
   
   // Handle remove event
-  const handleRemoveEvent = (eventId) => {
+  const handleRemoveEvent = (e, eventId) => {
+    e.stopPropagation(); // Prevent event bubbling
     const updatedEvents = events.filter(event => event.id !== eventId);
     setEvents(updatedEvents);
     
@@ -237,19 +267,17 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
   const getEventsForSlot = (dayIndex, hourIndex) => {
     return events.filter(event => 
       event.dayIndex === dayIndex && 
-      hourIndex >= (event.timeIndex) && 
+      hourIndex >= event.timeIndex && 
       hourIndex < (event.timeIndex + (event.endHour - event.startHour))
     );
   };
   
   // Calculate event style based on position
-  const calculateEventStyle = (event, hourIndex) => {
+  const calculateEventStyle = (event) => {
     const duration = event.endHour - event.startHour;
-    const top = 0;
     const height = duration * 50 - 4; // Height of time slot (50px) * duration - padding
     
     return {
-      top: `${top}px`,
       height: `${height}px`
     };
   };
@@ -323,7 +351,6 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
           {weekDays.map((day, dayIndex) => (
             <DayColumn2 key={dayIndex}>
               {timeSlots.map((timeSlot, hourIndex) => {
-                const slotEvents = getEventsForSlot(dayIndex, hourIndex);
                 const isOver = dropTarget && dropTarget.day === dayIndex && dropTarget.hour === hourIndex;
                 
                 return (
@@ -334,10 +361,10 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
                     onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, dayIndex, hourIndex)}
                   >
-                    {slotEvents.map((event, eventIndex) => {
+                    {getEventsForSlot(dayIndex, hourIndex).map((event, eventIndex) => {
                       // Only render the event at its start position
                       if (isEventStart(event, hourIndex)) {
-                        const eventStyle = calculateEventStyle(event, hourIndex);
+                        const eventStyle = calculateEventStyle(event);
                         
                         return (
                           <EventItem 
@@ -347,12 +374,12 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
                           >
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <Typography variant="caption" noWrap>
-                                {`${timeSlots[event.timeIndex].label} - ${timeSlots[event.timeIndex + (event.endHour - event.startHour) - 1].label}`}
+                                {`${timeSlots[event.timeIndex].label} - ${timeSlots[Math.min(event.timeIndex + (event.endHour - event.startHour), 23)].label}`}
                               </Typography>
                               <IconButton 
                                 size="small" 
                                 sx={{ color: 'inherit', p: 0 }}
-                                onClick={() => handleRemoveEvent(event.id)}
+                                onClick={(e) => handleRemoveEvent(e, event.id)}
                               >
                                 <DeleteIcon fontSize="small" />
                               </IconButton>
