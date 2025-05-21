@@ -10,6 +10,7 @@
     "@mui/material": "^7.0.2",
     "@mui/styles": "^6.4.11",
     "@react-google-maps/api": "^2.20.6",
+    "@supabase/supabase-js": "^2.49.5",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",

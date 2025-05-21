@@ -15,22 +15,6 @@ function Explore() {
                 <PopularTrips />
             </div>
         </div>
-
-        //     {/* Main content layout */}
-        // <div style={{ display: 'flex', flexDirection: 'row', marginTop: '10vh', height: '90vh' }}>
-        //     {/* Left side: List Display */}
-        //     <div style={{ flex: 1, overflowY: 'auto' }}>
-        //         <SearchBar onSearch={setCoordinates}  />
-        //         <PopularTrips />
-        //     </div>
-
-        //     {/* Right side: Map Display */}
-        //     {/* <div style={{ flex: 2 }}>
-        //         <MapComponent coordinates={coordinates} />
-        //     </div> */}
-        //     </div>
-        // </div>
-        // {/* </div> */}
     )
 }
 

@@ -47,6 +47,10 @@ function App() {
             <Route path="/" element={<Explore/>}/>
             <Route path="/trips" element={<Trips/>}/>
             <Route path="/ExploreTo" element={<ExploreTo/>} />
+            {/* <Route --> how to protect the trip route with login check
+              path="/dashboard"
+              element={user ? <Dashboard user={user} itineraries={itineraries} /> : <Navigate to="/login" />}
+            /> */}
           </Routes>
         </Router>
       </LoadScript>
