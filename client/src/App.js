@@ -26,6 +26,8 @@ import './App.css';
 import Explore from './pages/Explore/Explore';
 import Trips from './pages/Trips/Trips';
 import ExploreTo from './pages/Explore/ExploreTo';
+import Login from './pages/Login&SignUp/Login';
+import SignUp from './pages/Login&SignUp/SignUp';
 
 
 /**
@@ -47,6 +49,8 @@ function App() {
             <Route path="/" element={<Explore/>}/>
             <Route path="/trips" element={<Trips/>}/>
             <Route path="/ExploreTo" element={<ExploreTo/>} />
+            <Route path="/login" element={<Login/>} />
+            <Route path="/signup" element={<SignUp/>} />
           </Routes>
         </Router>
       </LoadScript>
