@@ -27,13 +27,13 @@ const List = ({ places = [], isLoading, onPlaceSelect }) => {
   }
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box sx={{ padding: 2}}>
       {places.length === 0 ? (
         <Typography variant="body1" sx={{ color: 'white' }}>No places found in this area.</Typography>
       ) : (
         <Grid container spacing={2}>
           {places.map((place, index) => (
-            <Grid item xs={12} key={`place-list-${index}`}>
+            <Grid item xs={12} key={`place-list-${index}`} >
               <PlaceCard 
                 place={place}
                 onClick={() => onPlaceSelect(place)}
@@ -97,7 +97,12 @@ const PlaceCard = ({ place, onClick }) => {
       elevation={2}
       sx={{ 
         display: 'flex', 
-        cursor: isDragging ? 'grabbing' : 'pointer',
+        width: '100%',
+        maxHeight: 170,
+
+        // height: 'auto',
+        cursor: 'grabbing',
+        // cursor: isDragging ? 'grabbing' : 'pointer',
         opacity: isDragging ? 0.7 : 1,
         '&:hover': { boxShadow: 6 }
       }}
@@ -107,65 +112,107 @@ const PlaceCard = ({ place, onClick }) => {
       onDragEnd={handleDragEnd}
     >
       {/* Drag Handle Indicator */}
-      <Box 
+      {/* <Box 
         sx={{ 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
-          padding: '0 4px',
+          // padding: '0 4px',
           color: 'text.secondary',
           cursor: 'grab'
         }}
       >
         <DragIndicatorIcon />
-      </Box>
+      </Box> */}
       
       {/* Place Image */}
-      {place.photo && (
-        <CardMedia
-          component="img"
-          sx={{ width: 120, height: '100%', objectFit: 'cover' }}
-          image={place.photo}
-          alt={place.name}
-        />
-      )}
+      <Box
+        sx={{
+          width: 170,
+          height: 'auto',
+          backgroundColor: '#e0e0e0', 
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+      >
+        {place.photo ? (
+          <CardMedia
+            component="img"
+            image={place.photo}
+            alt={place.name}
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover', 
+            }}
+          />
+        ) : (
+          <Typography sx={{ color: 'black', fontSize: 12 }}>No Image</Typography>
+        )}
+      </Box>
+
       
       {/* Place Details */}
-      <CardContent sx={{ flex: '1 0 auto', padding: 2 }}>
-        <Typography component="div" variant="h6">
+      <CardContent sx={{display: 'flex', flexDirection: 'column', paddingBottom: 50, minwidth: 0, overflow: 'visible'}}>
+        <Typography component="div" variant="subtitle2">
           {place.name}
         </Typography>
+
+        {/* Rating and Price */}
+        {(place.rating || place.price_level) && (
+          <Box display="flex" alignItems="center" mb={0.5} gap={0.5}>
+            {/* Rating Section */}
+            {place.rating && (
+              <Box display="flex" alignItems="center">
+                <Rating size="small" value={Number(place.rating)} precision={0.5} readOnly />
+                <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
+                  {place.rating} ({place.user_ratings_total || 0})
+                </Typography>
+              </Box>
+            )}
+
+            {/* Price Level */}
+            {place.price_level && (
+              <Typography variant="caption" color="text.secondary">
+                {'$'.repeat(place.price_level)}
+              </Typography>
+            )}
+          </Box>
+        )}
+
         
         {/* Rating */}
-        {place.rating && (
+        {/* {place.rating && (
           <Box display="flex" alignItems="center" mb={1}>
             <Rating size="small" value={Number(place.rating)} precision={0.5} readOnly />
             <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
               {place.rating} ({place.user_ratings_total || 0})
             </Typography>
           </Box>
-        )}
+        )} */}
         
         {/* Price Level */}
-        {place.price_level && (
+        {/* {place.price_level && (
           <Box mb={1}>
             <Typography variant="body2" color="text.secondary">
               {'$'.repeat(place.price_level)}
             </Typography>
           </Box>
-        )}
+        )} */}
         
         {/* Address */}
-        <Box display="flex" alignItems="center" mb={0.5}>
-          <LocationOnIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
-          <Typography variant="body2" color="text.secondary">
+        <Box display="flex" alignItems="center" flexWrap="wrap" mb={0.5}>
+          <Typography variant="caption" color="text.secondary">
+            <LocationOnIcon fontSize="inherit" color="action" sx={{ mr: 0.5 }} />
             {place.vicinity || place.address}
           </Typography>
         </Box>
         
         {/* Category */}
         {place.category && (
-          <Box display="flex" flexWrap="wrap" gap={0.5} mt={1}>
+          <Box display="flex" flexWrap="wrap" gap={0.5} mt={0.5}>
             <Chip 
               key={place.category} 
               label={place.category.replace(/_/g, ' ')} 
@@ -176,7 +223,7 @@ const PlaceCard = ({ place, onClick }) => {
                 place.category === 'attractions' ? 'warning' :
                 place.category === 'parks' ? 'success' : 'default'
               }
-              sx={{ textTransform: 'capitalize' }} 
+              sx={{ textTransform: 'capitalize', fontSize: '0.7rem'}} 
             />
             {place.types && place.types.slice(0, 2).map((type, i) => (
               <Chip 
@@ -184,7 +231,7 @@ const PlaceCard = ({ place, onClick }) => {
                 label={type.replace(/_/g, ' ')} 
                 size="small" 
                 variant="outlined"
-                sx={{ textTransform: 'capitalize' }} 
+                sx={{ textTransform: 'capitalize', fontSize: '0.7rem' }} 
               />
             ))}
           </Box>
