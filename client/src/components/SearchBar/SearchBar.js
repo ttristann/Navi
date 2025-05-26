@@ -145,7 +145,7 @@ function SearchBar({ onSearch }) {
     <Paper
       elevation={3}
       sx={{
-        p: 4,
+        p: 5,
         borderRadius: 2,
         maxWidth: 600,
         mx: 'auto',
@@ -154,7 +154,7 @@ function SearchBar({ onSearch }) {
         textAlign: 'center',
       }}
     >
-      <Typography variant="h5" fontWeight="bold" gutterBottom>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
         Plan Your Perfect Getaway
       </Typography>
 

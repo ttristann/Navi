@@ -3,14 +3,17 @@ import { Box, Typography, Card, CardMedia, CardContent, CardActionArea } from '@
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-function TripCard({ trip }) {
+function TripCard({ trip, size = 'default' }) {
   const { destination, image, days, itineraryLink } = trip;
+  const isSmall = size === 'small';
 
   return (
     <Card 
       sx={{ 
-        width: 320,
-        height: 350,
+        // width: 400,
+        width: isSmall ? 350 : 400,
+        height: isSmall ? 280 : 350,
+        // height: 350,
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 2,
@@ -27,7 +30,8 @@ function TripCard({ trip }) {
     >
       <CardMedia
         component="img"
-        height="200"
+        height={isSmall ? '140' : '200'}
+        // height="200"
         image={image}
         alt={destination}
         sx={{ 
@@ -37,7 +41,8 @@ function TripCard({ trip }) {
       />
       
       <CardContent sx={{ 
-        p: 3, 
+        p : isSmall ? 2 : 3,
+        // p: 3, 
         flexGrow: 1,
         display: 'flex',
         flexDirection: 'column',

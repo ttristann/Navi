@@ -1,7 +1,8 @@
 .navbar {
     width: 100%;
     height: 60px;
-    background-color: rgba(135, 176, 248, 0.71);
+    background-color: transparent;
+    /* background-color: rgba(135, 176, 248, 0.71); */
     /* background-color: white; */
     display: flex;
     justify-content: space-between;
@@ -60,9 +61,6 @@
   width: 100%;
   background-color: #1E3A8A;
 }
-
-
-
 
 .leftSide{
     display: flex;

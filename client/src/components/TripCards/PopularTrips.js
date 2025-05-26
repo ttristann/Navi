@@ -35,10 +35,11 @@ function PopularTrips() {
       <Typography
         variant="h4"
         component="h3"
+        // color="#1E3A8A"
         sx={{
           fontWeight: 'bold',
           mb: 3,
-          ml: 8,
+          ml: 2,
           marginTop: 13,
           position: 'relative',
           '&:after': {
@@ -76,7 +77,7 @@ function PopularTrips() {
           },
         }}
       /> */}
-      <Grid container spacing={8} sx={{ mt: 6 }} justifyContent="center">
+      <Grid container spacing={4} sx={{ mt: 6 }} justifyContent="center">
         {popularTrips.map((trip) => (
           <Grid item xs={12} sm={6} md={4} key={trip.id}>
             <TripCard trip={trip} />
