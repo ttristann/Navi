@@ -62,6 +62,7 @@ axios @react-google-maps/api google-map-react \
 
 npm install date-fns
 npm install @supabase/supabase-js
+npm install react-icons
 ```
 - install postgres:
 - mac: brew install postgresql@15
