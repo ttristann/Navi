@@ -1,105 +1,162 @@
-require('dotenv').config();
-const express = require('express');
+import express from 'express';
+import bcrypt from 'bcrypt';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { createClient } from '@supabase/supabase-js';
+
+dotenv.config();
+
 const app = express();
-const bodyParser = require('body-parser');
-const { Pool } = require('pg');
-const bcrypt = require('bcrypt');
-const cors = require('cors'); // Add this import
 
-const jwt = require('jsonwebtoken');
-// const JWT_SECRET = process.env.JWT_SECRET || 'devsecret';
-
-// Middleware
-app.use(bodyParser.json());
-app.use(cors({
-  origin: 'http://localhost:3000', // Allow requests from React app
-  credentials: true
-})); // Enable CORS for React app
-
-// Connect to Supabase Postgres
-let pool;
-
-console.log('Using connection string method');
-pool = new Pool({
-  connectionString: process.env.SUPABASE_DATABASE_URL
+// CORS middleware - MUST be first
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
 });
 
-// Test database connection with better error handling
-pool.connect()
-  .then((client) => {
-    console.log('Connected to Supabase database successfully');
-    client.release();
-    
-    // Test a simple query
-    return pool.query('SELECT NOW()');
-  })
-  .then((result) => {
-    console.log('Database query test successful:', result.rows[0]);
-  })
-  .catch(err => {
-    console.error('Database connection error:', err.message);
-    
-    if (err.message.includes('ENOTFOUND')) {
-      console.log('\nHostname issue - trying alternative connection...');
-      
-      // Try with individual parameters as backup
-      const poolBackup = new Pool({
-        host: 'db.tocxgxnkfxkgxkuygsvy.supabase.co',
-        port: 5432,
-        database: 'postgres',
-        user: 'postgres',
-        password: '5BXyQQLR2fUcM1qQ',
-        ssl: { rejectUnauthorized: false }
-      });
-      
-      poolBackup.connect()
-        .then(() => console.log('Backup connection successful'))
-        .catch(backupErr => console.error('Backup connection failed:', backupErr.message));
-    }
-  });
+// JSON parser
+app.use(express.json());
 
-// ROUTES //
+// Supabase client setup
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// CREATE PROFILE (POST /api/register)
-app.post('/api/register', async (req, res) => {
-    const { email, password, name } = req.body;
-    
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-    }
-    
-    try {
-        // Check if user exists
-        const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (existingUser.rows.length > 0) {
-            return res.status(409).json({ error: 'User already exists' });
-        }
-        
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // Insert user
-        const result = await pool.query(
-            `INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING id, email, name, created_at`,
-            [email, hashedPassword, name]
-        );
-        
-        res.status(201).json({ 
-            message: 'User registered successfully', 
-            user: result.rows[0] 
-        });
-    } catch (err) {
-        console.error('Registration error:', err);
-        res.status(500).json({ error: 'Server error' });
-    }
+// Debug middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  if (req.method === 'POST') {
+    console.log('Request body:', req.body);
+  }
+  next();
 });
 
-// Health check route
+// Health check
 app.get('/api/health', (req, res) => {
-    res.json({ message: 'Server is running' });
+  res.json({ message: 'Server is running', timestamp: new Date().toISOString() });
 });
 
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working!', timestamp: new Date().toISOString() });
+});
+
+// Register route
+app.post('/api/register', async (req, res) => {
+  console.log('=== REGISTRATION REQUEST STARTED ===');
+  console.log('Request body:', req.body);
+  
+  const { email, password, name } = req.body;
+
+  // Validation
+  if (!email || !password || !name) {
+    console.log('❌ Validation failed: missing fields');
+    return res.status(400).json({ 
+      error: 'Name, email and password are required' 
+    });
+  }
+
+  if (password.length < 6) {
+    console.log('❌ Validation failed: password too short');
+    return res.status(400).json({ 
+      error: 'Password must be at least 6 characters long' 
+    });
+  }
+
+  try {
+    console.log('✅ Validation passed, checking if user exists...');
+    
+    // Check if user exists
+    const { data: existingUser, error: selectError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    if (selectError && selectError.code !== 'PGRST116') {
+      console.error('❌ Error checking existing user:', selectError);
+      throw selectError;
+    }
+
+    if (existingUser) {
+      console.log('❌ User already exists');
+      return res.status(409).json({ error: 'User already exists with this email' });
+    }
+
+    console.log('✅ User does not exist, hashing password...');
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    console.log('✅ Password hashed, inserting user...');
+    const { data: newUser, error: insertError } = await supabase
+      .from('users')
+      .insert([{ 
+        email: email.toLowerCase(), 
+        password: hashedPassword, 
+        name: name.trim()
+      }])
+      .select('id, email, name, created_at')
+      .single();
+
+    if (insertError) {
+      console.error('❌ Insert error:', insertError);
+      throw insertError;
+    }
+
+    console.log('✅ SUCCESS! New user registered:', newUser);
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        created_at: newUser.created_at
+      }
+    });
+  } catch (err) {
+    console.error('❌ Registration error:', err);
+    
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'User already exists with this email' });
+    }
+    
+    res.status(500).json({ 
+      error: 'Server error occurred during registration',
+      details: err.message
+    });
+  }
+  
+  console.log('=== REGISTRATION REQUEST ENDED ===');
+});
+
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log('🚀 Server starting...');
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🔗 Test endpoint: http://localhost:${PORT}/api/test`);
+  console.log('✅ CORS enabled for http://localhost:3000');
 });
+
+// import express from 'express';
+
+// const app = express();
+// const port = process.env.PORT || 4000;
+
+// app.get("/", (req, res) => {
+//   res.send("Hello, World!");
+// });
+
+// app.listen(port, (error) => {
+//   if (error) {
+//     console.error("Error starting server:", error);
+//   }
+//   return console.log(`Server is running on http://localhost:${port}`);
+// });
