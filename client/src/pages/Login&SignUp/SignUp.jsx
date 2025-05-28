@@ -24,8 +24,28 @@ function SignUp() {
     setLoading(true);
     setError('');
 
+    // Basic validation
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch('/api/register', {
+      // Update the URL to include the full server address
+      const response = await fetch('http://localhost:4000/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,16 +58,16 @@ function SignUp() {
       if (response.ok) {
         // Registration successful
         console.log('User registered:', data.user);
-        // Redirect to login page or dashboard
+        alert('Registration successful! Redirecting to login...');
+        // Redirect to login page
         navigate('/login');
-        // Or you could automatically log them in here
       } else {
         // Handle error response
         setError(data.error || 'Registration failed');
       }
     } catch (err) {
       console.error('Registration error:', err);
-      setError('Network error. Please try again.');
+      setError('Network error. Please check if the server is running.');
     } finally {
       setLoading(false);
     }
@@ -67,6 +87,7 @@ function SignUp() {
               placeholder="Full Name"
               value={formData.name}
               onChange={handleChange}
+              required
             />
             <input 
               type="email"
