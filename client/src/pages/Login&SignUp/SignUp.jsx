@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/UserContext';
 import '../../styles/Login.css'; 
 
 function SignUp() {
@@ -11,6 +12,7 @@ function SignUp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { setUser } = useUser();
 
   const handleChange = (e) => {
     setFormData({
@@ -56,6 +58,13 @@ function SignUp() {
 
       if (response.ok) {
         console.log('User registered:', data.user);
+        // setting user context to keep track of current user information
+        setUser({
+          id: data.user.id,
+          username: data.user.username,
+          email: data.user.email
+        });
+
         alert('Registration successful! Redirecting to home page...');
         navigate('/');
       } else {
