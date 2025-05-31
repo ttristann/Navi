@@ -68,10 +68,7 @@ npm install react-icons
 - mac: brew install postgresql@15
 - pc: look it up, sorry julie lol
 - in backend/server directory:
-- npm install express pg cors
-- npm install nodemon -D 
-- npm install morgan
-- npm install helmet
+- 
 - add MORE
 ### Run the App
 ```bash

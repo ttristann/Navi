@@ -52,25 +52,25 @@ app.post('/api/register', async (req, res) => {
   console.log('=== REGISTRATION REQUEST STARTED ===');
   console.log('Request body:', req.body);
   
-  const { email, password, name } = req.body;
+  const { email, password, username } = req.body;
 
   // Validation
-  if (!email || !password || !name) {
-    console.log('❌ Validation failed: missing fields');
+  if (!email || !password || !username) {
+    console.log('Validation failed: missing fields');
     return res.status(400).json({ 
-      error: 'Name, email and password are required' 
+      error: 'Username, email and password are required' 
     });
   }
 
   if (password.length < 6) {
-    console.log('❌ Validation failed: password too short');
+    console.log('Validation failed: password too short');
     return res.status(400).json({ 
       error: 'Password must be at least 6 characters long' 
     });
   }
 
   try {
-    console.log('✅ Validation passed, checking if user exists...');
+    console.log('Validation passed, checking if user exists...');
     
     // Check if user exists
     const { data: existingUser, error: selectError } = await supabase
@@ -80,47 +80,47 @@ app.post('/api/register', async (req, res) => {
       .single();
 
     if (selectError && selectError.code !== 'PGRST116') {
-      console.error('❌ Error checking existing user:', selectError);
+      console.error('Error checking existing user:', selectError);
       throw selectError;
     }
 
     if (existingUser) {
-      console.log('❌ User already exists');
+      console.log('User already exists');
       return res.status(409).json({ error: 'User already exists with this email' });
     }
 
-    console.log('✅ User does not exist, hashing password...');
+    console.log('User does not exist, hashing password...');
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    console.log('✅ Password hashed, inserting user...');
+    console.log('Password hashed, inserting user...');
     const { data: newUser, error: insertError } = await supabase
       .from('users')
       .insert([{ 
         email: email.toLowerCase(), 
         password: hashedPassword, 
-        name: name.trim()
+        username: username.trim()
       }])
-      .select('id, email, name, created_at')
+      .select('id, email, username, created_at')
       .single();
 
     if (insertError) {
-      console.error('❌ Insert error:', insertError);
+      console.error('Insert error:', insertError);
       throw insertError;
     }
 
-    console.log('✅ SUCCESS! New user registered:', newUser);
+    console.log('SUCCESS! New user registered:', newUser);
 
     res.status(201).json({
       message: 'User registered successfully',
       user: {
         id: newUser.id,
         email: newUser.email,
-        name: newUser.name,
+        username: newUser.username,
         created_at: newUser.created_at
       }
     });
   } catch (err) {
-    console.error('❌ Registration error:', err);
+    console.error('Registration error:', err);
     
     if (err.code === '23505') {
       return res.status(409).json({ error: 'User already exists with this email' });

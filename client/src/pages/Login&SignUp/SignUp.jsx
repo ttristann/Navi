@@ -6,7 +6,7 @@ function SignUp() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    name: ''
+    username: '' // changed from name to username
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -25,8 +25,8 @@ function SignUp() {
     setError('');
 
     // Basic validation
-    if (!formData.name.trim()) {
-      setError('Name is required');
+    if (!formData.username.trim()) {
+      setError('Username is required');
       setLoading(false);
       return;
     }
@@ -44,7 +44,6 @@ function SignUp() {
     }
 
     try {
-      // Update the URL to include the full server address
       const response = await fetch('http://localhost:4000/api/register', {
         method: 'POST',
         headers: {
@@ -56,13 +55,10 @@ function SignUp() {
       const data = await response.json();
 
       if (response.ok) {
-        // Registration successful
         console.log('User registered:', data.user);
-        alert('Registration successful! Redirecting to login...');
-        // Redirect to login page
-        navigate('/login');
+        alert('Registration successful! Redirecting to home page...');
+        navigate('/');
       } else {
-        // Handle error response
         setError(data.error || 'Registration failed');
       }
     } catch (err) {
@@ -83,9 +79,9 @@ function SignUp() {
           <div className="input-wrapper">
             <input 
               type="text"
-              name="name"
-              placeholder="Full Name"
-              value={formData.name}
+              name="username" // changed from name
+              placeholder="Username" // changed placeholder
+              value={formData.username}
               onChange={handleChange}
               required
             />
@@ -114,7 +110,7 @@ function SignUp() {
             <label>
               <input type="checkbox" /> Remember Me
             </label>
-            <span /> {/* Keeps layout consistent with login */}
+            <span />
           </div>
 
           <button type="submit" disabled={loading}>

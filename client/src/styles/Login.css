@@ -45,6 +45,7 @@
   margin: 0 auto;
 }
 
+.input-wrapper input[type="text"],
 .input-wrapper input[type="email"],
 .input-wrapper input[type="password"] {
   padding: 1.2rem;
