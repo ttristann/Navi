@@ -135,6 +135,65 @@ app.post('/api/register', async (req, res) => {
   console.log('=== REGISTRATION REQUEST ENDED ===');
 });
 
+// Create itineary route
+app.post('/api/itineraries', async (req, res) => {
+  const { user_id, title, description } = req.body;
+
+  if (!user_id || !title) {
+    return res.status(400).json({ error: 'User ID and title are required' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('itineraries')
+      .insert([{ user_id, title, description }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) {
+    console.error('Error creating itinerary:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+// Save calendar events(place) to an itinerary route
+app.post('/api/itineraries/:itineraryId/places', async (req, res) => {
+  const { itineraryId } = req.params;
+  const { events } = req.body;
+
+  if (!Array.isArray(events)) {
+    return res.status(400).json({ error: 'Events must be an array' });
+  }
+
+  try {
+    const formattedPlaces = events.map(event => ({
+      itinerary_id: parseInt(itineraryId),
+      place_id: event.placeId,
+      name: event.place?.name,
+      address: event.place?.address,
+      lat: event.place?.lat,
+      lng: event.place?.lng,
+      order_index: event.timeIndex,
+      visit_date: new Date(event.date).toISOString().split('T')[0],
+      start_time: `${event.startHour}:00:00`,
+      end_time: `${event.endHour}:00:00`,
+    }));
+
+    const { data, error } = await supabase
+      .from('places')
+      .insert(formattedPlaces)
+      .select();
+
+    if (error) throw error;
+
+    res.status(201).json(data);
+  } catch (err) {
+    console.error('Error saving events:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

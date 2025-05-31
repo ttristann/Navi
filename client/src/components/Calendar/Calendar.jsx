@@ -6,14 +6,20 @@ import {
   Divider,
   IconButton,
   Tooltip,
-  Button
+  Button,
+  Alert,
+  Snackbar,
+  CircularProgress
 } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+import ShareIcon from '@mui/icons-material/Share';
 import { styled } from '@mui/material/styles';
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
+import { useUser } from '../../context/UserContext';
 
 // Styled components for calendar elements
 const CalendarContainer = styled(Paper)(({ theme }) => ({
@@ -138,11 +144,25 @@ const ActionButtons = styled(Box)(({ theme }) => ({
 /**
  * Calendar component for scheduling places
  */
-const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
+const Calendar = ({ 
+  places, 
+  onEventAdded, 
+  onEventRemoved, 
+  itineraryId, 
+  onSaveSuccess,
+  onSaveError 
+}) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [weekStart, setWeekStart] = useState(startOfWeek(currentDate, { weekStartsOn: 1 }));
   const [events, setEvents] = useState([]);
   const [dropTarget, setDropTarget] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertSeverity, setAlertSeverity] = useState('success');
+  const { user } = useUser();
+  const userId = user?.id;
+
   
   // Generate week days
   const weekDays = Array.from({ length: 5 }, (_, i) => {
@@ -263,6 +283,101 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
     }
   };
   
+  // Handle save calendar events
+  const handleSave = async () => {
+    if (!userId) {
+      setSaveMessage('User not logged in.');
+      setAlertSeverity('error');
+      setShowAlert(true);
+      return;
+    }
+
+    if (events.length === 0) {
+      setSaveMessage('No events to save');
+      setAlertSeverity('warning');
+      setShowAlert(true);
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      // Step 1: Create the itinerary
+      const itineraryRes = await fetch(`http://localhost:4000/api/itineraries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId,
+          title: 'Untitled Trip',
+          description: 'Generated from Calendar'
+        }),
+      });
+  
+      const itineraryData = await itineraryRes.json();
+  
+      if (!itineraryRes.ok) {
+        throw new Error(itineraryData.error || 'Failed to create itinerary');
+      }
+  
+      const newItineraryId = itineraryData.id;
+  
+      // Step 2: Save the calendar events
+      const placesRes = await fetch(`http://localhost:4000/api/itineraries/${newItineraryId}/places`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ events }),
+      });
+  
+      const placesData = await placesRes.json();
+  
+      if (!placesRes.ok) {
+        throw new Error(placesData.error || 'Failed to save calendar events');
+      }
+  
+      setSaveMessage(`Itinerary created and ${placesData.length} places saved!`);
+      setAlertSeverity('success');
+      setShowAlert(true);
+  
+      if (onSaveSuccess) {
+        onSaveSuccess({ itineraryId: newItineraryId, events: placesData });
+      }
+    } catch (error) {
+      console.error('Error saving calendar events:', error);
+      setSaveMessage(`Error: ${error.message}`);
+      setAlertSeverity('error');
+      setShowAlert(true);
+  
+      if (onSaveError) {
+        onSaveError(error);
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Handle share (placeholder for now)
+  const handleShare = () => {
+    if (navigator.share && itineraryId) {
+      navigator.share({
+        title: 'My Travel Itinerary',
+        text: 'Check out my travel itinerary!',
+        url: `${window.location.origin}/itinerary/${itineraryId}`,
+      }).catch(console.error);
+    } else {
+      // Fallback: copy to clipboard
+      const shareUrl = `${window.location.origin}/itinerary/${itineraryId}`;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        setSaveMessage('Itinerary link copied to clipboard!');
+        setAlertSeverity('info');
+        setShowAlert(true);
+      }).catch(() => {
+        setSaveMessage('Unable to copy link');
+        setAlertSeverity('error');
+        setShowAlert(true);
+      });
+    }
+  };
+  
   // Find events for a specific day and time slot
   const getEventsForSlot = (dayIndex, hourIndex) => {
     return events.filter(event => 
@@ -286,120 +401,149 @@ const Calendar = ({ places, onEventAdded, onEventRemoved }) => {
   const isEventStart = (event, hourIndex) => {
     return hourIndex === event.timeIndex;
   };
+
+  // Close alert
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+  };
   
   return (
-    <CalendarContainer>
-      {/* Calendar Header */}
-      <CalendarHeader>
-        <DateSelector>
-          <CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />
-          <Typography variant="subtitle2">
-            {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 4), 'MMM d, yyyy')}
-          </Typography>
-          <IconButton size="small" onClick={handlePrevWeek} sx={{ color: 'inherit', ml: 1 }}>
-            <ArrowBackIosIcon fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={handleNextWeek} sx={{ color: 'inherit' }}>
-            <ArrowForwardIosIcon fontSize="small" />
-          </IconButton>
-        </DateSelector>
+    <>
+      <CalendarContainer>
+        {/* Calendar Header */}
+        <CalendarHeader>
+          <DateSelector>
+            <CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />
+            <Typography variant="subtitle2">
+              {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 4), 'MMM d, yyyy')}
+            </Typography>
+            <IconButton size="small" onClick={handlePrevWeek} sx={{ color: 'inherit', ml: 1 }}>
+              <ArrowBackIosIcon fontSize="small" />
+            </IconButton>
+            <IconButton size="small" onClick={handleNextWeek} sx={{ color: 'inherit' }}>
+              <ArrowForwardIosIcon fontSize="small" />
+            </IconButton>
+          </DateSelector>
+          
+          <ActionButtons>
+            <Button 
+              variant="contained" 
+              color="success" 
+              size="small"
+              sx={{ color: '#fff' }}
+              onClick={handleSave}
+              disabled={isSaving || events.length === 0}
+              startIcon={isSaving ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </Button>
+            <Button 
+              variant="outlined" 
+              color="inherit" 
+              size="small"
+              sx={{ color: '#fff', borderColor: '#fff' }}
+              onClick={handleShare}
+              disabled={!itineraryId}
+              startIcon={<ShareIcon />}
+            >
+              Share
+            </Button>
+          </ActionButtons>
+        </CalendarHeader>
         
-        <ActionButtons>
-          <Button 
-            variant="contained" 
-            color="success" 
-            size="small"
-            sx={{ color: '#fff' }}
-          >
-            Save
-          </Button>
-          <Button 
-            variant="outlined" 
-            color="inherit" 
-            size="small"
-            sx={{ color: '#fff', borderColor: '#fff' }}
-          >
-            Share
-          </Button>
-        </ActionButtons>
-      </CalendarHeader>
-      
-      {/* Calendar Days */}
-      <CalendarDays>
-        <Box sx={{ width: '60px' }}></Box>
-        {weekDays.map((day, index) => (
-          <DayColumn key={index} isToday={day.isToday}>
-            <Typography variant="subtitle2">{day.dayName}</Typography>
-            <Typography variant="h6">{day.dayNumber}</Typography>
-          </DayColumn>
-        ))}
-      </CalendarDays>
-      
-      {/* Calendar Grid */}
-      <CalendarGrid>
-        {/* Time Column */}
-        <TimeColumn>
-          {timeSlots.map((slot, index) => (
-            <TimeSlot key={index}>
-              {slot.label}
-            </TimeSlot>
+        {/* Calendar Days */}
+        <CalendarDays>
+          <Box sx={{ width: '60px' }}></Box>
+          {weekDays.map((day, index) => (
+            <DayColumn key={index} isToday={day.isToday}>
+              <Typography variant="subtitle2">{day.dayName}</Typography>
+              <Typography variant="h6">{day.dayNumber}</Typography>
+            </DayColumn>
           ))}
-        </TimeColumn>
+        </CalendarDays>
         
-        {/* Day Columns */}
-        <DayGrid>
-          {weekDays.map((day, dayIndex) => (
-            <DayColumn2 key={dayIndex}>
-              {timeSlots.map((timeSlot, hourIndex) => {
-                const isOver = dropTarget && dropTarget.day === dayIndex && dropTarget.hour === hourIndex;
-                
-                return (
-                  <DropZone 
-                    key={hourIndex}
-                    isOver={isOver}
-                    onDragOver={(e) => handleDragOver(e, dayIndex, hourIndex)}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, dayIndex, hourIndex)}
-                  >
-                    {getEventsForSlot(dayIndex, hourIndex).map((event, eventIndex) => {
-                      // Only render the event at its start position
-                      if (isEventStart(event, hourIndex)) {
-                        const eventStyle = calculateEventStyle(event);
-                        
-                        return (
-                          <EventItem 
-                            key={event.id} 
-                            style={eventStyle}
-                            category={event.place.category}
-                          >
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <Typography variant="caption" noWrap>
-                                {`${timeSlots[event.timeIndex].label} - ${timeSlots[Math.min(event.timeIndex + (event.endHour - event.startHour), 23)].label}`}
+        {/* Calendar Grid */}
+        <CalendarGrid>
+          {/* Time Column */}
+          <TimeColumn>
+            {timeSlots.map((slot, index) => (
+              <TimeSlot key={index}>
+                {slot.label}
+              </TimeSlot>
+            ))}
+          </TimeColumn>
+          
+          {/* Day Columns */}
+          <DayGrid>
+            {weekDays.map((day, dayIndex) => (
+              <DayColumn2 key={dayIndex}>
+                {timeSlots.map((timeSlot, hourIndex) => {
+                  const isOver = dropTarget && dropTarget.day === dayIndex && dropTarget.hour === hourIndex;
+                  
+                  return (
+                    <DropZone 
+                      key={hourIndex}
+                      isOver={isOver}
+                      onDragOver={(e) => handleDragOver(e, dayIndex, hourIndex)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, dayIndex, hourIndex)}
+                    >
+                      {getEventsForSlot(dayIndex, hourIndex).map((event, eventIndex) => {
+                        // Only render the event at its start position
+                        if (isEventStart(event, hourIndex)) {
+                          const eventStyle = calculateEventStyle(event);
+                          
+                          return (
+                            <EventItem 
+                              key={event.id} 
+                              style={eventStyle}
+                              category={event.place.category}
+                            >
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography variant="caption" noWrap>
+                                  {`${timeSlots[event.timeIndex].label} - ${timeSlots[Math.min(event.timeIndex + (event.endHour - event.startHour), 23)].label}`}
+                                </Typography>
+                                <IconButton 
+                                  size="small" 
+                                  sx={{ color: 'inherit', p: 0 }}
+                                  onClick={(e) => handleRemoveEvent(e, event.id)}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Box>
+                              <Typography variant="body2" noWrap sx={{ fontWeight: 'bold' }}>
+                                {event.place.name}
                               </Typography>
-                              <IconButton 
-                                size="small" 
-                                sx={{ color: 'inherit', p: 0 }}
-                                onClick={(e) => handleRemoveEvent(e, event.id)}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Box>
-                            <Typography variant="body2" noWrap sx={{ fontWeight: 'bold' }}>
-                              {event.place.name}
-                            </Typography>
-                          </EventItem>
-                        );
-                      }
-                      return null;
-                    })}
-                  </DropZone>
-                );
-              })}
-            </DayColumn2>
-          ))}
-        </DayGrid>
-      </CalendarGrid>
-    </CalendarContainer>
+                            </EventItem>
+                          );
+                        }
+                        return null;
+                      })}
+                    </DropZone>
+                  );
+                })}
+              </DayColumn2>
+            ))}
+          </DayGrid>
+        </CalendarGrid>
+      </CalendarContainer>
+
+      {/* Success/Error Alert */}
+      <Snackbar
+        open={showAlert}
+        autoHideDuration={6000}
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseAlert} 
+          severity={alertSeverity} 
+          sx={{ width: '100%' }}
+        >
+          {saveMessage}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

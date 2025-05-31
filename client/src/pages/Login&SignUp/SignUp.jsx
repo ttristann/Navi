@@ -58,6 +58,7 @@ function SignUp() {
 
       if (response.ok) {
         console.log('User registered:', data.user);
+        
         // setting user context to keep track of current user information
         setUser({
           id: data.user.id,
