@@ -135,6 +135,49 @@ app.post('/api/register', async (req, res) => {
   console.log('=== REGISTRATION REQUEST ENDED ===');
 });
 
+// Log in route
+app.post('/api/login', async (req, res) => {
+  console.log('=== LOGIN REQUEST STARTED ===');
+  console.log('Request body:', req.body);
+
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  try {
+    const { data: user, error: fetchError } = await supabase
+      .from('users')
+      .select('id, email, username, password')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    if (fetchError || !user) {
+      console.error('User fetch error or user not found:', fetchError);
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Strip out the password before sending
+    const { password: _, ...userWithoutPassword } = user;
+
+    console.log('Login successful for:', userWithoutPassword);
+    res.status(200).json({ message: 'Login successful', user: userWithoutPassword });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Server error during login', details: err.message });
+  }
+
+  console.log('=== LOGIN REQUEST ENDED ===');
+});
+
+
 // Create itineary route
 app.post('/api/itineraries', async (req, res) => {
   const { user_id, title, description } = req.body;
@@ -157,6 +200,7 @@ app.post('/api/itineraries', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 // Save calendar events(place) to an itinerary route
 app.post('/api/itineraries/:itineraryId/places', async (req, res) => {
   const { itineraryId } = req.params;
@@ -193,6 +237,27 @@ app.post('/api/itineraries/:itineraryId/places', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Get all itineraries for a user route
+app.get('/api/users/:userId/itineraries', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const { data, error } = await supabase
+      .from('itineraries')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (err) {
+    console.error('Error fetching itineraries:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
