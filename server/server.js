@@ -258,6 +258,25 @@ app.get('/api/users/:userId/itineraries', async (req, res) => {
   }
 });
 
+// Get a specific itinerary with places route
+app.get('/api/itineraries/:itineraryId', async (req, res) => {
+  const { itineraryId } = req.params;
+
+  try {
+    const { data, error } = await supabase
+      .from('itineraries')
+      .select('*, places(*)')
+      .eq('id', itineraryId)
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Error fetching itinerary:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Start server
 const PORT = process.env.PORT || 5000;

@@ -61,7 +61,7 @@ function Trips() {
             destination: trip.title || 'Untitled Trip',
             image: '/images/default-trip.jpg',  // fallback image
             days: '3', // optional: calculate based on places data
-            itineraryLink: `/itinerary/${trip.id}`
+            itineraryLink: `/ExploreTo?itineraryId=${trip.id}`
           }));
   
           setUserTrips(mappedTrips);

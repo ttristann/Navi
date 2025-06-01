@@ -36,6 +36,9 @@ function ExploreTo() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   
+  // Get itinerary ID from URL params if available
+  const itineraryId = queryParams.get('itineraryId');
+
   // Initial coordinates from URL params or default
   const initialCoordinates = {
     lat: queryParams.get('lat') ? parseFloat(queryParams.get('lat')) : defaultCoordinates.lat,
@@ -204,6 +207,52 @@ function ExploreTo() {
     
     return () => clearTimeout(timer);
   }, [coordinates, activeFilter]);
+
+  // If itineraryId is provided, fetch places for that itinerary
+  useEffect(() => {
+    const fetchSavedItinerary = async () => {
+      if (!itineraryId) return;
+  
+      try {
+        const res = await fetch(`http://localhost:4000/api/itineraries/${itineraryId}`);
+        const data = await res.json();
+  
+        if (res.ok && data.places) {
+          const mappedEvents = data.places.map(place => {
+            const startHour = parseInt(place.start_time.split(':')[0]);
+            const endHour = parseInt(place.end_time.split(':')[0]);
+            const visitDate = new Date(place.visit_date + 'T00:00:00');
+            const dayIndex = visitDate.getDay() === 0 ? 6 : visitDate.getDay() - 1;
+  
+            return {
+              id: `event-${place.place_id}-${place.id}`,
+              placeId: place.place_id,
+              place: {
+                id: place.place_id,
+                name: place.name,
+                address: place.address,
+                lat: place.lat,
+                lng: place.lng,
+                category: place.category || 'default',
+              },
+              date: visitDate,
+              startHour,
+              endHour,
+              dayIndex,
+              timeIndex: startHour
+            };
+          });
+  
+          setScheduledEvents(mappedEvents);
+        }
+      } catch (err) {
+        console.error('Failed to load itinerary:', err);
+      }
+    };
+  
+    fetchSavedItinerary();
+  }, [itineraryId]);
+  
 
   // Handle place selection from the list
   const handlePlaceSelect = (place) => {
@@ -374,6 +423,7 @@ function ExploreTo() {
                 places={places}
                 onEventAdded={handleEventAdded}
                 onEventRemoved={handleEventRemoved}
+                initialEvents={scheduledEvents}
               />
             </Box>
           </Box>
