@@ -5,6 +5,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useNavigate } from 'react-router-dom';
 import '../../App.css';
 import TripCard from '../../components/TripCards/TripCard';
+import {useUser} from '../../context/UserContext';
 
 // Dummy data for the cards
 const popularTrips = [
@@ -38,8 +39,43 @@ function Trips() {
   const [location, setLocation] = useState(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [userTrips, setUserTrips] = useState([]);
   const inputRef = useRef(null);
   const navigate = useNavigate();
+  const { user } = useUser();
+  const userId = user?.id;
+
+  // Fetch user trips
+  useEffect(() => {
+    const fetchUserTrips = async () => {
+      if (!userId) return;
+  
+      try {
+        const res = await fetch(`http://localhost:4000/api/users/${userId}/itineraries`);
+        const data = await res.json();
+  
+        if (res.ok) {
+          // Transform for TripCard display (optional)
+          const mappedTrips = data.map((trip) => ({
+            id: trip.id,
+            destination: trip.title || 'Untitled Trip',
+            image: '/images/default-trip.jpg',  // fallback image
+            days: '3', // optional: calculate based on places data
+            itineraryLink: `/itinerary/${trip.id}`
+          }));
+  
+          setUserTrips(mappedTrips);
+        } else {
+          console.error('Error fetching trips:', data.error);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+      }
+    };
+  
+    fetchUserTrips();
+  }, [user]);
+
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -252,7 +288,7 @@ function Trips() {
               pb: 10
             }}
           >
-            {popularTrips.map((trip) => (
+            {userTrips.map((trip) => (
               <TripCard key={trip.id} trip={trip} size='small'/>
             ))}
           </Box>
