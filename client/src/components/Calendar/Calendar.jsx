@@ -9,7 +9,12 @@ import {
   Button,
   Alert,
   Snackbar,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField
 } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -160,6 +165,13 @@ const Calendar = ({
   const [saveMessage, setSaveMessage] = useState('');
   const [showAlert, setShowAlert] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState('success');
+  
+  // Dialog state
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [itineraryTitle, setItineraryTitle] = useState('');
+  const [itineraryDescription, setItineraryDescription] = useState('');
+  const [titleError, setTitleError] = useState('');
+  
   const { user } = useUser();
   const userId = user?.id;
 
@@ -283,8 +295,8 @@ const Calendar = ({
     }
   };
   
-  // Handle save calendar events
-  const handleSave = async () => {
+  // Handle save button click - open dialog
+  const handleSaveClick = () => {
     if (!userId) {
       setSaveMessage('User not logged in.');
       setAlertSeverity('error');
@@ -299,17 +311,48 @@ const Calendar = ({
       return;
     }
 
+    // Generate default title based on date range
+    const defaultTitle = `Trip ${format(weekStart, 'MMM d')} - ${format(addDays(weekStart, 4), 'MMM d, yyyy')}`;
+    setItineraryTitle(defaultTitle);
+    setItineraryDescription('');
+    setTitleError('');
+    setShowSaveDialog(true);
+  };
+
+  // Handle dialog close
+  const handleDialogClose = () => {
+    setShowSaveDialog(false);
+    setTitleError('');
+  };
+
+  // Validate form
+  const validateForm = () => {
+    if (!itineraryTitle.trim()) {
+      setTitleError('Title is required');
+      return false;
+    }
+    setTitleError('');
+    return true;
+  };
+
+  // Handle save calendar events (actual save logic)
+  const handleSaveItinerary = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSaving(true);
+    setShowSaveDialog(false);
 
     try {
-      // Step 1: Create the itinerary
+      // Step 1: Create the itinerary with user-provided title and description
       const itineraryRes = await fetch(`http://localhost:4000/api/itineraries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: userId,
-          title: 'Untitled Trip',
-          description: 'Generated from Calendar'
+          title: itineraryTitle.trim(),
+          description: itineraryDescription.trim() || 'Generated from Calendar'
         }),
       });
   
@@ -334,7 +377,7 @@ const Calendar = ({
         throw new Error(placesData.error || 'Failed to save calendar events');
       }
   
-      setSaveMessage(`Itinerary created and ${placesData.length} places saved!`);
+      setSaveMessage(`Itinerary "${itineraryTitle}" created and ${placesData.length} places saved!`);
       setAlertSeverity('success');
       setShowAlert(true);
   
@@ -431,7 +474,7 @@ const Calendar = ({
               color="success" 
               size="small"
               sx={{ color: '#fff' }}
-              onClick={handleSave}
+              onClick={handleSaveClick}
               disabled={isSaving || events.length === 0}
               startIcon={isSaving ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
             >
@@ -527,6 +570,63 @@ const Calendar = ({
           </DayGrid>
         </CalendarGrid>
       </CalendarContainer>
+
+      {/* Save Itinerary Dialog */}
+      <Dialog 
+        open={showSaveDialog} 
+        onClose={handleDialogClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Save Your Itinerary</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="normal"
+            label="Itinerary Title"
+            fullWidth
+            variant="outlined"
+            value={itineraryTitle}
+            onChange={(e) => setItineraryTitle(e.target.value)}
+            error={!!titleError}
+            helperText={titleError || 'Give your itinerary a memorable name'}
+            required
+          />
+          <TextField
+            margin="normal"
+            label="Description (Optional)"
+            fullWidth
+            variant="outlined"
+            multiline
+            rows={3}
+            value={itineraryDescription}
+            onChange={(e) => setItineraryDescription(e.target.value)}
+            helperText="Add a description to help you remember this trip"
+            placeholder="Tell us about your trip plans..."
+          />
+          <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              📅 <strong>Date Range:</strong> {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 4), 'MMM d, yyyy')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              📍 <strong>Places:</strong> {events.length} scheduled
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary">
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSaveItinerary} 
+            variant="contained" 
+            color="primary"
+            disabled={!itineraryTitle.trim()}
+          >
+            Save Itinerary
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Success/Error Alert */}
       <Snackbar
