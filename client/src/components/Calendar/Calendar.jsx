@@ -290,51 +290,6 @@ const Calendar = ({
     
     setDropTarget(null);
   };
-
-  // // Loading places from certain itinerary if provided id (for itinerary)
-  // useEffect(() => {
-  //   const fetchItineraryEvents = async () => {
-  //     if (!itineraryId) return;
-  
-  //     try {
-  //       const res = await fetch(`http://localhost:4000/api/itineraries/${itineraryId}`);
-  //       const data = await res.json();
-  
-  //       if (res.ok && Array.isArray(data.places)) {
-  //         const loadedEvents = data.places.map(place => {
-  //           const startHour = parseInt(place.start_time.split(':')[0]);
-  //           const endHour = parseInt(place.end_time.split(':')[0]);
-  //           const visitDate = new Date(place.visit_date + 'T00:00:00');
-  //           const dayIndex = visitDate.getDay() === 0 ? 6 : visitDate.getDay() - 1;
-  
-  //           return {
-  //             id: `event-${place.place_id}-${place.id}`,
-  //             placeId: place.place_id,
-  //             place: {
-  //               id: place.place_id,
-  //               name: place.name,
-  //               address: place.address,
-  //               lat: place.lat,
-  //               lng: place.lng,
-  //               category: 'default' // optional: derive from stored category
-  //             },
-  //             date: visitDate,
-  //             startHour,
-  //             endHour,
-  //             dayIndex,
-  //             timeIndex: startHour
-  //           };
-  //         });
-  
-  //         setEvents(loadedEvents);
-  //       }
-  //     } catch (err) {
-  //       console.error('Error loading itinerary places:', err);
-  //     }
-  //   };
-  
-  //   fetchItineraryEvents();
-  // }, [itineraryId]);
   
   // Handle remove event
   const handleRemoveEvent = (e, eventId) => {
