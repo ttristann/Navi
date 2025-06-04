@@ -229,67 +229,85 @@ const Calendar = ({
   // Handle drop
   const handleDrop = (e, dayIndex, hourIndex) => {
     e.preventDefault();
-    
+  
+    const categoryMapping = {
+      'restaurants': ['restaurant', 'cafe', 'bar', 'food'],
+      'shopping': ['shopping_mall', 'store', 'clothing_store', 'electronics_store'],
+      'attractions': ['tourist_attraction', 'museum', 'amusement_park', 'art_gallery'],
+      'parks': ['park', 'campground', 'natural_feature', 'points_of_interest']
+    };
+  
+    const determineCategory = (types = []) => {
+      for (const [category, typeList] of Object.entries(categoryMapping)) {
+        if (types.some(type => typeList.includes(type))) {
+          return category;
+        }
+      }
+      return 'other';
+    };
+  
     let placeData;
-    
+  
     try {
-      // Try to get the JSON data from the drag event
       const jsonData = e.dataTransfer.getData('application/json');
       if (jsonData) {
         placeData = JSON.parse(jsonData);
       }
     } catch (error) {
-      console.error('Error parsing place data:', error);
+      console.error('Error parsing JSON data:', error);
     }
-    
-    // If we couldn't get JSON data, try text data as fallback
+  
     if (!placeData) {
       try {
         const textData = e.dataTransfer.getData('text/plain');
         if (textData) {
-          // Try to parse as JSON if it's a stringified object
           try {
             placeData = JSON.parse(textData);
-          } catch (error) {
-            // If it's not JSON, it might be just the ID
-            // Try to find the place by ID from the places prop
+          } catch {
             const placeId = textData;
             placeData = places.find(p => p.id === placeId);
           }
         }
       } catch (error) {
-        console.error('Error getting place data from drag event:', error);
+        console.error('Error getting place data from text:', error);
       }
     }
-    
+  
     if (!placeData) {
-      console.error('No valid place data found in the drag event');
+      console.error('No valid place data found in drop event.');
       return;
     }
-    
+  
+    // Ensure category is attached
+    const category = placeData.category || determineCategory(placeData.types || []);
+  
     const day = weekDays[dayIndex].date;
     const hour = timeSlots[hourIndex].hour;
-    const endHour = hour + 1; // Default 1 hour event
-    
+    const endHour = hour + 1;
+  
     const newEvent = {
       id: `event-${placeData.id}-${Date.now()}`,
       placeId: placeData.id,
-      place: placeData,
+      place: {
+        ...placeData,
+        category
+      },
       date: day,
       startHour: hour,
-      endHour: endHour,
+      endHour,
       dayIndex,
       timeIndex: hourIndex
     };
-    
+  
     setEvents([...events, newEvent]);
-    
+  
     if (onEventAdded) {
       onEventAdded(newEvent);
     }
-    
+  
     setDropTarget(null);
   };
+  
   
   // Handle remove event
   const handleRemoveEvent = (e, eventId) => {

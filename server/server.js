@@ -222,6 +222,7 @@ app.post('/api/itineraries/:itineraryId/places', async (req, res) => {
       visit_date: new Date(event.date).toISOString().split('T')[0],
       start_time: `${event.startHour}:00:00`,
       end_time: `${event.endHour}:00:00`,
+      category: event.place?.category || 'other'
     }));
 
     const { data, error } = await supabase
