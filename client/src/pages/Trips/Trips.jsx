@@ -44,6 +44,7 @@ function Trips() {
   const navigate = useNavigate();
   const { user } = useUser();
   const userId = user?.id;
+  const { updateLocation } = useUser(); // Use context to update location
 
   // Fetch user trips
   useEffect(() => {
@@ -120,6 +121,8 @@ function Trips() {
       start: startDate,
       end: endDate,
     });
+    
+    updateLocation({ lat: location.lat, lng: location.lng });
 
     navigate(`/ExploreTo?${params.toString()}`);
   };

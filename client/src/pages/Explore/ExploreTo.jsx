@@ -22,6 +22,7 @@ import Header from '../../components/Headers/Header';
 import List from '../../components/List/List';
 import MapComponent from '../../components/Map/Map';
 import Calendar from '../../components/Calendar/Calendar';
+import { useUser } from '../../context/UserContext';
 
 /**
  * ExploreTo component
@@ -52,6 +53,9 @@ function ExploreTo() {
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
   const [scheduledEvents, setScheduledEvents] = useState([]);
 
+  // Get user context and set destinations
+  const {user, setUser} = useUser()
+
   // Set default active filter to 'restaurants' only
   const [activeFilter, setActiveFilter] = useState('restaurants');
   
@@ -72,18 +76,30 @@ function ExploreTo() {
     'default': '#FF5252'
   };
   
-  // Listen for URL parameter changes
-  useEffect(() => {
-    const lat = queryParams.get('lat');
-    const lng = queryParams.get('lng');
-    
-    if (lat && lng) {
-      setCoordinates({
-        lat: parseFloat(lat),
-        lng: parseFloat(lng)
-      });
-    }
-  }, [location.search]);
+  // // Listen for URL parameter changes
+  // useEffect(() => {
+  //   const lat = queryParams.get('lat');
+  //   const lng = queryParams.get('lng');
+  //   const destinationName = queryParams.get('destination');
+  
+  //   if (lat && lng) {
+  //     const coords = {
+  //       lat: parseFloat(lat),
+  //       lng: parseFloat(lng)
+  //     };
+  //     setCoordinates(coords);
+  
+  //     // Save destination to UserContext if it exists
+  //     if (destinationName) {
+  //       setUser(prev => ({
+  //         ...prev,
+  //         destinations: prev.destinations?.includes(destinationName)
+  //           ? prev.destinations
+  //           : [...(prev.destinations || []), destinationName]
+  //       }));
+  //     }
+  //   }
+  // }, [location.search]);
   
   // Function to fetch places from Google Places API based on current coordinates and filters
   useEffect(() => {
@@ -216,8 +232,19 @@ function ExploreTo() {
       try {
         const res = await fetch(`http://localhost:4000/api/itineraries/${itineraryId}`);
         const data = await res.json();
-  
+
+        // // Setting coordinates from itinerary if available
+        // if (res.ok) {
+        //   if (data.location_lat && data.location_long) {
+        //     setCoordinates({ lat: data.location_lat, lng: data.location_long });
+        //   }
+        // }
+
         if (res.ok && data.places) {
+
+          if (data.location_lat && data.location_long) {
+            setCoordinates({ lat: data.location_lat, lng: data.location_long });
+          }
           const mappedEvents = data.places.map(place => {
             const startHour = parseInt(place.start_time.split(':')[0]);
             const endHour = parseInt(place.end_time.split(':')[0]);

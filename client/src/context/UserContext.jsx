@@ -6,12 +6,10 @@ const UserContext = createContext(null);
 // 2. Create a provider component
 export function UserProvider({ children }) {
   const [user, setUser] = useState(() => {
-    // Load from sessionStorage on initial load
     const storedUser = sessionStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  // Save to sessionStorage whenever user changes
   useEffect(() => {
     if (user) {
       sessionStorage.setItem('user', JSON.stringify(user));
@@ -20,8 +18,16 @@ export function UserProvider({ children }) {
     }
   }, [user]);
 
+  // to update the location
+  const updateLocation = (location) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      location, // { lat, lng }
+    }));
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, updateLocation }}>
       {children}
     </UserContext.Provider>
   );

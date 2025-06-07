@@ -13,8 +13,8 @@ CREATE TABLE itineraries (
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT, -- optional user-provided description
-    destinations TEXT[], -- list of typed/searched destinations
-    view_count INTEGER,
+    location_lat DOUBLE PRECISION NOT NULL
+    location_long DOUBLE PRECISION NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

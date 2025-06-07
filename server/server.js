@@ -183,7 +183,7 @@ app.get('/api/itineraries/all', async (req, res) => {
     const { data, error } = await supabase
       .from('itineraries')
       .select('*')
-      .order('view_count', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
 
@@ -194,11 +194,9 @@ app.get('/api/itineraries/all', async (req, res) => {
   }
 });
 
-
-
 // Create itineary route
 app.post('/api/itineraries', async (req, res) => {
-  const { user_id, title, description } = req.body;
+  const { user_id, title, description, location_lat, location_long } = req.body;
 
   if (!user_id || !title) {
     return res.status(400).json({ error: 'User ID and title are required' });
@@ -207,7 +205,7 @@ app.post('/api/itineraries', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('itineraries')
-      .insert([{ user_id, title, description }])
+      .insert([{ user_id, title, description, location_lat, location_long }])
       .select()
       .single();
 

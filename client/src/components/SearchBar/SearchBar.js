@@ -2,11 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Box, Button, InputBase, Paper, Typography } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/UserContext';
 
 function SearchBar({ onSearch }) {
   const [searchInput, setSearchInput] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const {updateLocation} = useUser(); // Use context to update location
   const inputRef = useRef(null);
   const navigate = useNavigate(); // Hook for navigation
   
@@ -127,6 +129,8 @@ function SearchBar({ onSearch }) {
   // Function to navigate to ExploreTo with coordinates
   const navigateToExploreTo = (location) => {
     // If onSearch prop exists, call it (for backward compatibility)
+    updateLocation(location); // Update location in context
+
     if (onSearch) {
       onSearch(location);
     }

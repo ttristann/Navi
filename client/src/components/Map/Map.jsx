@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Paper, Typography, useMediaQuery, Rating, Box } from '@mui/material';
 import { Map, AdvancedMarker, Pin, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { useUser } from '../../context/UserContext';
 
 import useStyles from './styles';
 
 const MapComponent = ({
   coordinates,
+  location_lat,
+  location_lng,
   places = [],
   selectedPlace: propSelectedPlace,
   setSelectedPlace: propSetSelectedPlace,
@@ -20,10 +23,15 @@ const MapComponent = ({
   const [localSelectedPlace, setLocalSelectedPlace] = useState(null);
   const [directionsRenderer, setDirectionsRenderer] = useState(null);
   const [routeBreakpoints, setRouteBreakpoints] = useState([]);
+  // csont [itinerary, setItinerary] = useState(null);
   const map = useMap();
 
   const selectedPlace = propSelectedPlace !== undefined ? propSelectedPlace : localSelectedPlace;
   const setSelectedPlace = propSetSelectedPlace || setLocalSelectedPlace;
+
+  const mapCenter = location_lat && location_lng
+  ? { lat: location_lat, lng: location_lng }
+  : coordinates;
 
   // Fit all markers and the center into view
   useEffect(() => {
@@ -155,8 +163,8 @@ const MapComponent = ({
     <div style={containerStyle}>
       <Map
         mapId={process.env.REACT_APP_GOOGLE_MAP_ID || 'demo-map-id'}
-        defaultCenter={coordinates}
-        center={coordinates}
+        defaultCenter={mapCenter}
+        center={mapCenter}
         defaultZoom={14}
         style={{ width: '100%', height: '100%' }}
         options={{

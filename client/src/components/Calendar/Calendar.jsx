@@ -377,7 +377,9 @@ const Calendar = ({
         body: JSON.stringify({
           user_id: userId,
           title: itineraryTitle.trim(),
-          description: itineraryDescription.trim() || 'Generated from Calendar'
+          description: itineraryDescription.trim() || 'Generated from Calendar',
+          location_lat : user.location?.lat || 0,
+          location_long: user.location?.lng || 0
         }),
       });
   
