@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   CssBaseline, 
   Box, 
@@ -29,7 +29,42 @@ import Calendar from '../../components/Calendar/Calendar';
  * with a calendar for scheduling places - all visible at the same time
  */
 function ExploreTo() {
+  const [mapHeight, setMapHeight] = useState(60); // % of container height
+  const isResizing = useRef(false);
   const [activeTab, setActiveTab] = useState('make');
+
+
+  // Dragging Window Logic 
+  const handleMouseDown = () => {
+    isResizing.current = true;
+  };
+
+  const handleMouseUp = () => {
+    isResizing.current = false;
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isResizing.current) return;
+    const container = document.getElementById('right-column');
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      const offsetY = e.clientY - rect.top;
+      const newHeight = (offsetY / rect.height) * 100;
+      if (newHeight > 20 && newHeight < 80) {
+        setMapHeight(newHeight);
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
 
   // Default coordinates (Los Angeles)
   const defaultCoordinates = { lat: 34.0522, lng: -118.2437 };
@@ -410,14 +445,17 @@ function ExploreTo() {
           </Paper>
           
           {/* Right Column - Map and Calendar */}
-          <Box sx={{ 
-            width: '70%', 
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%'
-          }}>
+          <Box 
+            id='right-column'
+            sx={{ 
+              width: '70%', 
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              position: 'relative',
+            }}>
             {/* Map Component - Takes upper 60% */}
-            <Box sx={{ height: '60%', position: 'relative' }}>
+            <Box sx={{ height: `${mapHeight}%`, position: 'relative' }}>
               <MapComponent 
                 coordinates={coordinates} 
                 places={places}
@@ -425,13 +463,29 @@ function ExploreTo() {
                 setSelectedPlace={setSelectedPlace}
               />
             </Box>
-            
+
+            {/* Divider */}
+            <Box
+              sx={{
+                height: '5px',
+                cursor: 'row-resize',
+                backgroundColor: '#bbb',
+                zIndex: 10,
+                '&:hover': {
+                  backgroundColor: '#999',
+                },             
+              }}
+              onMouseDown={handleMouseDown}
+            />
+                  
             {/* Calendar Component - Takes lower 40% */}
             <Box sx={{ 
-              height: '40%', 
+              height: `${100 - mapHeight}%`, 
               borderTop: '1px solid rgba(0, 0, 0, 0.12)',
               overflow: 'auto',
-              p: 2
+              p: 2, 
+              zIndex: 10,
+              backgroundColor: 'white'
             }}>
               <Calendar 
                 places={places}
