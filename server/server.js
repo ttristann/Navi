@@ -304,19 +304,3 @@ app.listen(PORT, () => {
   console.log(`🔗 Test endpoint: http://localhost:${PORT}/api/test`);
   console.log('✅ CORS enabled for http://localhost:3000');
 });
-
-// import express from 'express';
-
-// const app = express();
-// const port = process.env.PORT || 4000;
-
-// app.get("/", (req, res) => {
-//   res.send("Hello, World!");
-// });
-
-// app.listen(port, (error) => {
-//   if (error) {
-//     console.error("Error starting server:", error);
-//   }
-//   return console.log(`Server is running on http://localhost:${port}`);
-// });

@@ -122,7 +122,7 @@ function Trips() {
       end: endDate,
     });
     
-    updateLocation({ lat: location.lat, lng: location.lng });
+    updateLocation({ lat: location.lat, lng: location.lng }); 
 
     navigate(`/ExploreTo?${params.toString()}`);
   };
