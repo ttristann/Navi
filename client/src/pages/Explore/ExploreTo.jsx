@@ -477,6 +477,7 @@ function ExploreTo() {
                         itineraryLink: `/ExploreTo?itineraryId=${trip.id}`
                       }}
                       size="small"
+                      explore="explore"
                     />
                   </Grid>
                 ))}

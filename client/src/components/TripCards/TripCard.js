@@ -3,9 +3,10 @@ import { Box, Typography, Card, CardContent } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-function TripCard({ trip, size = 'default' }) {
+function TripCard({ trip, size = 'default', explore = 'default' }) {
   const { destination, description, days, itineraryLink } = trip;
   const isSmall = size === 'small';
+  const isExplore = explore === 'explore';
 
   return (
     <Card 
@@ -23,7 +24,7 @@ function TripCard({ trip, size = 'default' }) {
         },
         m: 1, 
         bgcolor: '#ffffff',
-        borderLeft: '15px solid #212C59'
+        borderLeft: isExplore ? "15px solid #74BEED" : '15px solid #212C59'
       }}
     >
       <CardContent sx={{ 
