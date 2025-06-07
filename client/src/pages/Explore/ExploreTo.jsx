@@ -50,7 +50,7 @@ function ExploreTo() {
       const rect = container.getBoundingClientRect();
       const offsetY = e.clientY - rect.top;
       const newHeight = (offsetY / rect.height) * 100;
-      if (newHeight > 20 && newHeight < 80) {
+      if (newHeight <= 60 && newHeight > 20) {
         setMapHeight(newHeight);
       }
     }
