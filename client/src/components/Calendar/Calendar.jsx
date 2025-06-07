@@ -371,7 +371,7 @@ const Calendar = ({
 
     try {
       // Step 1: Create the itinerary with user-provided title and description
-      const itineraryRes = await fetch(`http://localhost:4000/api/itineraries`, {
+      const itineraryRes = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/itineraries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -392,7 +392,7 @@ const Calendar = ({
       const newItineraryId = itineraryData.id;
   
       // Step 2: Save the calendar events
-      const placesRes = await fetch(`http://localhost:4000/api/itineraries/${newItineraryId}/places`, {
+      const placesRes = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/itineraries/${newItineraryId}/places`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ events }),

@@ -52,7 +52,7 @@ function Trips() {
       if (!userId) return;
   
       try {
-        const res = await fetch(`http://localhost:4000/api/users/${userId}/itineraries`);
+        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/users/${userId}/itineraries`);
         const data = await res.json();
   
         if (res.ok) {

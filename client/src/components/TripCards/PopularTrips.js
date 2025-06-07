@@ -9,7 +9,7 @@ function PopularTrips() {
   useEffect(() => {
     const fetchTrips = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/itineraries/all');
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/itineraries/all`);
         const data = await response.json();
         setTrips(data);
       } catch (error) {

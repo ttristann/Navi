@@ -244,7 +244,7 @@ function ExploreTo() {
   useEffect(() => {
     const fetchTrips = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/itineraries/all');
+        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/itineraries/all`);
         const data = await res.json();
         if (res.ok) {
           setUserTrips(data);
@@ -265,7 +265,7 @@ function ExploreTo() {
       if (!itineraryId) return;
   
       try {
-        const res = await fetch(`http://localhost:4000/api/itineraries/${itineraryId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/itineraries/${itineraryId}`);
         const data = await res.json();
 
         if (res.ok && data.places) {
