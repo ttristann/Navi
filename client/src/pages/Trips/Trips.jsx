@@ -112,7 +112,7 @@ function Trips() {
     if (!location || !startDate || !endDate) {
       alert('Please fill out all fields');
       return;
-    }
+    } 
 
     const params = new URLSearchParams({
       lat: location.lat,

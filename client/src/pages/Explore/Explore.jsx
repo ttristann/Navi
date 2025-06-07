@@ -10,7 +10,7 @@ function Explore() {
     
     return (
         <div style={{ display: 'flex', flexDirection: 'row'}}>
-            <div style={{ flex: 1, overflowY: 'auto' }}>
+            <div style={{ flex: 1 }}>
                 <SearchBar onSearch={setCoordinates} />
                 <PopularTrips />
             </div>

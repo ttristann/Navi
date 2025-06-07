@@ -8,7 +8,8 @@ import {
   Divider,
   Typography,
   Chip,
-  Paper
+  Paper, 
+  Grid
 } from '@mui/material';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
@@ -23,6 +24,8 @@ import List from '../../components/List/List';
 import MapComponent from '../../components/Map/Map';
 import Calendar from '../../components/Calendar/Calendar';
 import { useUser } from '../../context/UserContext';
+import TripCard from '../../components/TripCards/TripCard';
+import PopularTrips from '../../components/TripCards/PopularTrips';
 
 /**
  * ExploreTo component
@@ -89,6 +92,7 @@ function ExploreTo() {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
   const [scheduledEvents, setScheduledEvents] = useState([]);
+  const [userTrips, setUserTrips] = useState([]);
 
   // Get user context and set destinations
   const {user, setUser} = useUser()
@@ -112,31 +116,6 @@ function ExploreTo() {
     'parks': '#4CAF50',
     'default': '#FF5252'
   };
-  
-  // // Listen for URL parameter changes
-  // useEffect(() => {
-  //   const lat = queryParams.get('lat');
-  //   const lng = queryParams.get('lng');
-  //   const destinationName = queryParams.get('destination');
-  
-  //   if (lat && lng) {
-  //     const coords = {
-  //       lat: parseFloat(lat),
-  //       lng: parseFloat(lng)
-  //     };
-  //     setCoordinates(coords);
-  
-  //     // Save destination to UserContext if it exists
-  //     if (destinationName) {
-  //       setUser(prev => ({
-  //         ...prev,
-  //         destinations: prev.destinations?.includes(destinationName)
-  //           ? prev.destinations
-  //           : [...(prev.destinations || []), destinationName]
-  //       }));
-  //     }
-  //   }
-  // }, [location.search]);
   
   // Function to fetch places from Google Places API based on current coordinates and filters
   useEffect(() => {
@@ -261,6 +240,25 @@ function ExploreTo() {
     return () => clearTimeout(timer);
   }, [coordinates, activeFilter]);
 
+  // Loading all saved itineraries from all users
+  useEffect(() => {
+    const fetchTrips = async () => {
+      try {
+        const res = await fetch('http://localhost:4000/api/itineraries/all');
+        const data = await res.json();
+        if (res.ok) {
+          setUserTrips(data);
+        } else {
+          console.error('Failed to fetch itineraries:', data.error);
+        }
+      } catch (err) {
+        console.error('Error fetching itineraries:', err);
+      }
+    };
+  
+    fetchTrips();
+  }, []);
+
   // If itineraryId is provided, fetch places for that itinerary
   useEffect(() => {
     const fetchSavedItinerary = async () => {
@@ -269,13 +267,6 @@ function ExploreTo() {
       try {
         const res = await fetch(`http://localhost:4000/api/itineraries/${itineraryId}`);
         const data = await res.json();
-
-        // // Setting coordinates from itinerary if available
-        // if (res.ok) {
-        //   if (data.location_lat && data.location_long) {
-        //     setCoordinates({ lat: data.location_lat, lng: data.location_long });
-        //   }
-        // }
 
         if (res.ok && data.places) {
 
@@ -468,6 +459,30 @@ function ExploreTo() {
             </>
           )}
 
+          {activeTab === 'explore' && (
+            <Box sx={{ p: 2, overflowY: 'auto', flexGrow: 1 }}>
+              <Typography variant="h6" sx={{ color: 'white', mb: 2, fontWeight: 'bold' }}>
+                Popular Itineraries
+              </Typography>
+              <Grid container spacing={2}>
+                {userTrips.map((trip) => (
+                  <Grid item xs={12} sm={6} md={4} key={trip.id}>
+                    <TripCard
+                      trip={{
+                        id: trip.id,
+                        destination: trip.title || 'Unknown Destination',
+                        description: trip.description || 'No description available',
+                        image: `/images/${trip.destinations?.[0]?.replace(/\s+/g, '-') || 'default'}.png`,
+                        days: '3', // placeholder; you can compute duration if data is available
+                        itineraryLink: `/ExploreTo?itineraryId=${trip.id}`
+                      }}
+                      size="small"
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          )}
             
           </Paper>
           

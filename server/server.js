@@ -196,7 +196,7 @@ app.get('/api/itineraries/all', async (req, res) => {
 
 // Create itineary route
 app.post('/api/itineraries', async (req, res) => {
-  const { user_id, title, description, location_lat, location_long } = req.body;
+  const { user_id, title, description, location_lat, location_long } = req.body; 
 
   if (!user_id || !title) {
     return res.status(400).json({ error: 'User ID and title are required' });
