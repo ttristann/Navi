@@ -10,7 +10,7 @@ function TripCard({ trip, size = 'default' }) {
   return (
     <Card 
       sx={{ 
-        width: isSmall ? 350 : 400,
+        width: isSmall ? 350 : 380,
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 2,
@@ -23,6 +23,7 @@ function TripCard({ trip, size = 'default' }) {
         },
         m: 1, 
         bgcolor: '#ffffff',
+        borderLeft: '15px solid #212C59'
       }}
     >
       <CardContent sx={{ 

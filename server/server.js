@@ -183,7 +183,7 @@ app.get('/api/itineraries/all', async (req, res) => {
     const { data, error } = await supabase
       .from('itineraries')
       .select('*')
-      .order('view_count', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
 

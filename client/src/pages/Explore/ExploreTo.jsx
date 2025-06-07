@@ -29,6 +29,8 @@ import Calendar from '../../components/Calendar/Calendar';
  * with a calendar for scheduling places - all visible at the same time
  */
 function ExploreTo() {
+  const [activeTab, setActiveTab] = useState('make');
+
   // Default coordinates (Los Angeles)
   const defaultCoordinates = { lat: 34.0522, lng: -118.2437 };
   
@@ -287,7 +289,6 @@ function ExploreTo() {
   return (
     <APIProvider apiKey={apiKey} libraries={['places']}>
       <CssBaseline />
-      
       {/* Main Grid Container */}
       <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
         {/* Content Area */}
@@ -302,97 +303,110 @@ function ExploreTo() {
             borderRight: '1px solid rgba(0, 0, 0, 0.12)',
             bgcolor: '#1a2642' // Dark blue background like in wireframe
           }}>
-            {/* Filter Buttons */}
-            <Box sx={{ p: 1 }}>
-              <Box sx={{ mb: 1, px: 2 }}>
-                <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold', py: 1 }}>
-                  Suggested Stops
-                </Typography>
+          
+          {/* Toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', width: '100%', padding: '20px'}}>
+            <button onClick={() => setActiveTab('make')} style={{ width: '100%', height: '50px', color: 'white', backgroundColor: activeTab === 'make'? '#36499A': '#475EBF', border: 'none', borderRadius: '10px 0 0 10px', fontWeight: '600', transition: 'background-color 0.3s ease'}}>Make Your Own</button>
+            <button onClick={() => setActiveTab('explore')} style={{ width: '100%', height: '50px', color: 'white', backgroundColor: activeTab === 'explore'? '#36499A': '#475EBF', border: 'none', borderRadius: '0 10px 10px 0', fontWeight: '600', transition: 'background-color 0.3s ease'}}>Explore Itineraries</button>
+          </div>
+
+          {activeTab === 'make' && (
+            <>
+              {/* Filter Buttons */}
+              <Box sx={{ p: 1 }}>
+                <Box sx={{ mb: 1, px: 2 }}>
+                  <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold', py: 1 }}>
+                    Suggested Stops
+                  </Typography>
+                </Box>
+                
+                {/* Updated filter buttons structure */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexWrap: 'wrap', 
+                  justifyContent: 'center',
+                  gap: 2,
+                  px: 2,
+                  py: 1
+                }}>
+                  <Box sx={{ 
+                    width: '45%', 
+                    bgcolor: activeFilter === 'restaurants' ? '#000' : '#fff',
+                    color: activeFilter === 'restaurants' ? '#fff' : '#000',
+                    py: 1.5,
+                    px: 1,
+                    borderRadius: 1,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    fontWeight: 'medium',
+                    fontSize: '0.875rem'
+                  }}
+                  onClick={() => handleFilterChange('restaurants')}>
+                    food/drinks
+                  </Box>
+                  
+                  <Box sx={{ 
+                    width: '45%', 
+                    bgcolor: activeFilter === 'shopping' ? '#000' : '#fff',
+                    color: activeFilter === 'shopping' ? '#fff' : '#000',
+                    py: 1.5,
+                    px: 1,
+                    borderRadius: 1,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    fontWeight: 'medium',
+                    fontSize: '0.875rem'
+                  }}
+                  onClick={() => handleFilterChange('shopping')}>
+                    shopping/retail
+                  </Box>
+                  
+                  <Box sx={{ 
+                    width: '45%', 
+                    bgcolor: activeFilter === 'attractions' ? '#000' : '#fff',
+                    color: activeFilter === 'attractions' ? '#fff' : '#000',
+                    py: 1.5,
+                    px: 1,
+                    borderRadius: 1,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    fontWeight: 'medium',
+                    fontSize: '0.875rem'
+                  }}
+                  onClick={() => handleFilterChange('attractions')}>
+                    adventure/activities
+                  </Box>
+                  
+                  <Box sx={{ 
+                    width: '45%', 
+                    bgcolor: activeFilter === 'parks' ? '#000' : '#fff',
+                    color: activeFilter === 'parks' ? '#fff' : '#000',
+                    py: 1.5,
+                    px: 1,
+                    borderRadius: 1,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    fontWeight: 'medium',
+                    fontSize: '0.875rem'
+                  }}
+                  onClick={() => handleFilterChange('parks')}>
+                    landmark/park
+                  </Box>
+                </Box>
               </Box>
               
-              {/* Updated filter buttons structure */}
-              <Box sx={{ 
-                display: 'flex', 
-                flexWrap: 'wrap', 
-                justifyContent: 'center',
-                gap: 2,
-                px: 2,
-                py: 1
-              }}>
-                <Box sx={{ 
-                  width: '45%', 
-                  bgcolor: activeFilter === 'restaurants' ? '#000' : '#fff',
-                  color: activeFilter === 'restaurants' ? '#fff' : '#000',
-                  py: 1.5,
-                  px: 1,
-                  borderRadius: 1,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  fontWeight: 'medium',
-                  fontSize: '0.875rem'
-                }}
-                onClick={() => handleFilterChange('restaurants')}>
-                  food/drinks
-                </Box>
-                
-                <Box sx={{ 
-                  width: '45%', 
-                  bgcolor: activeFilter === 'shopping' ? '#000' : '#fff',
-                  color: activeFilter === 'shopping' ? '#fff' : '#000',
-                  py: 1.5,
-                  px: 1,
-                  borderRadius: 1,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  fontWeight: 'medium',
-                  fontSize: '0.875rem'
-                }}
-                onClick={() => handleFilterChange('shopping')}>
-                  shopping/retail
-                </Box>
-                
-                <Box sx={{ 
-                  width: '45%', 
-                  bgcolor: activeFilter === 'attractions' ? '#000' : '#fff',
-                  color: activeFilter === 'attractions' ? '#fff' : '#000',
-                  py: 1.5,
-                  px: 1,
-                  borderRadius: 1,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  fontWeight: 'medium',
-                  fontSize: '0.875rem'
-                }}
-                onClick={() => handleFilterChange('attractions')}>
-                  adventure/activities
-                </Box>
-                
-                <Box sx={{ 
-                  width: '45%', 
-                  bgcolor: activeFilter === 'parks' ? '#000' : '#fff',
-                  color: activeFilter === 'parks' ? '#fff' : '#000',
-                  py: 1.5,
-                  px: 1,
-                  borderRadius: 1,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  fontWeight: 'medium',
-                  fontSize: '0.875rem'
-                }}
-                onClick={() => handleFilterChange('parks')}>
-                  landmark/park
-                </Box>
+              {/* Places List - Scrollable */}
+              <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                <List 
+                  places={places} 
+                  isLoading={isLoading} 
+                  onPlaceSelect={handlePlaceSelect} 
+                />
               </Box>
-            </Box>
+            </>
+          )}
+
             
-            {/* Places List - Scrollable */}
-            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-              <List 
-                places={places} 
-                isLoading={isLoading} 
-                onPlaceSelect={handlePlaceSelect} 
-              />
-            </Box>
           </Paper>
           
           {/* Right Column - Map and Calendar */}

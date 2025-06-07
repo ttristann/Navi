@@ -23,7 +23,7 @@ function PopularTrips() {
   }, []);
 
   return (
-    <Box sx={{ mt: 7, mb: 6, px: 8 }}>
+    <Box sx={{ mt: 7, mb: 6, px: 8, display: 'flex', flexDirection: 'column', flexGrow: 1, height: '100%', minHeight: '100vh'}}>
       <Typography
         variant="h4"
         component="h3"
@@ -53,9 +53,9 @@ function PopularTrips() {
           <CircularProgress />
         </Box>
       ) : (
-        <Grid container spacing={4} sx={{ mt: 6 }} justifyContent="center">
+        <Grid container spacing={2} sx={{ mt: 6, flexGrow: 1, height: '100%', overflowY: 'auto'}} justifyContent="flex-start">
           {trips.map((trip) => (
-            <Grid item xs={12} sm={6} md={4} key={trip.id}>
+            <Grid item xs={12} sm={4} md={4} key={trip.id}>
               <TripCard
                 trip={{
                   id: trip.id,

@@ -141,6 +141,7 @@ function Trips() {
           alignItems: 'center', 
           flexDirection: 'column',
           gap: 3,
+          backgroundColor: 'rgba(255, 255, 255, 0.7)'
         }}
       >
         {/* Title */}
@@ -254,6 +255,7 @@ function Trips() {
           width: '60%',
           height: '70%',
           display: 'flex',
+          backgroundColor: 'rgba(255, 255, 255, 0.7)'
         }}
       >
 
