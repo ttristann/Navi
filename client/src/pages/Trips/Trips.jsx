@@ -59,6 +59,7 @@ function Trips() {
           const mappedTrips = data.map((trip) => ({
             id: trip.id,
             destination: trip.title || 'Untitled Trip',
+            description: trip.description || 'No description available',
             image: '/images/default-trip.jpg',  // fallback image
             days: '3', // optional: calculate based on places data
             itineraryLink: `/ExploreTo?itineraryId=${trip.id}`

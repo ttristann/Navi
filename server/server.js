@@ -177,6 +177,24 @@ app.post('/api/login', async (req, res) => {
   console.log('=== LOGIN REQUEST ENDED ===');
 });
 
+// Get all itineraries in the database from all users route
+app.get('/api/itineraries/all', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('itineraries')
+      .select('*')
+      .order('view_count', { ascending: false });
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (err) {
+    console.error('Error fetching itineraries:', err.message);
+    res.status(500).json({ error: 'Failed to fetch itineraries' });
+  }
+});
+
+
 
 // Create itineary route
 app.post('/api/itineraries', async (req, res) => {
