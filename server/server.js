@@ -3,25 +3,14 @@ import bcrypt from 'bcrypt';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
+import https from 'https';
+import fs from 'fs';
+
 
 dotenv.config();
 
 const app = express();
 
-// // CORS middleware - MUST be first
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-//   res.header('Access-Control-Allow-Credentials', 'true');
-  
-//   if (req.method === 'OPTIONS') {
-//     res.sendStatus(200);
-//   } else {
-//     next();
-//   }
-// });
-// Define allowed origins
 const allowedOrigins = [
   'http://localhost:3000',
   'https://main.d2pulh1w6d2zy1.amplifyapp.com' 
@@ -315,10 +304,19 @@ app.get('/api/itineraries/:itineraryId', async (req, res) => {
   }
 });
 
+// Load SSL cert and key
+const sslOptions = {
+  key: fs.readFileSync('./certs/key.pem'),
+  cert: fs.readFileSync('./certs/cert.pem')
+};
+
+// Create HTTPS server
+// PORT = 443
+
 
 // Start server
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, '0.0.0.0', () => {
+https.createServer(sslOptions, app).listen(PORT, '0.0.0.0', () => {
   console.log('🚀 Server starting...');
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
