@@ -306,8 +306,8 @@ app.get('/api/itineraries/:itineraryId', async (req, res) => {
 
 // Load SSL cert and key
 const sslOptions = {
-  key: fs.readFileSync('./certs/key.pem'),
-  cert: fs.readFileSync('./certs/cert.pem')
+  key: fs.readFileSync('/home/ec2-user/certs/key.pem'),
+  cert: fs.readFileSync('/home/ec2-user//certs/cert.pem')
 };
 
 // Create HTTPS server
