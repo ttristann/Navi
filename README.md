@@ -43,7 +43,6 @@ cd navi
 - ensure .env is in your client and server directory with proper information
 
 ### Run the App
- ## PROJECT IS IN PROGRESS, SECTION BELOW CAN BE IGNORED
 1. **Install frontend dependencies:**
    ```bash
    cd client
